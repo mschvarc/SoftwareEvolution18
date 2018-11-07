@@ -17,29 +17,29 @@ public void main() {
 	print("Avg Unit Size: ");
 	println(unitSize(model));
 	
-	print("Avg Unit Complexity: ");
-	println(unitComp(model));
+	//print("Avg Unit Complexity: ");
+	//println(unitComp(model));
 }
 
-public real unitComp(M3 model) {
-	myMethods = methods(model);
-
-	complexityCount = 0;
-	methodCount = 0;
-	
-	for(meth <- myMethods) {
-		complexityCount += singleUnitComp(meth, model);
-		
-		methodCount += 1;
-	}
-	
-	return complexityCount * 1.0 / methodCount;
-}
-
-public int singleUnitComp(loc meth, M3 model) {
-	absSynTree = getMethodASTEclipse(meth, model);
-	return 0;
-}
+//public real unitComp(M3 model) {
+//	myMethods = methods(model);
+//
+//	complexityCount = 0;
+//	methodCount = 0;
+//	
+//	for(meth <- myMethods) {
+//		complexityCount += singleUnitComp(meth, model);
+//		
+//		methodCount += 1;
+//	}
+//	
+//	return complexityCount * 1.0 / methodCount;
+//}
+//
+//public int singleUnitComp(loc meth, M3 model) {
+//	absSynTree = getMethodASTEclipse(meth, model);
+//	return 0;
+//}
 
 public real unitSize(M3 model) {
 	myMethods = methods(model);
