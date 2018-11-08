@@ -25,15 +25,8 @@ import lang::java::jdt::m3::Core;
 import lang::java::jdt::m3::AST;
 import analysis::m3::AST;
 
-public void getDuplicateCount() {
-	loc location = |project://smallsql0.21_src|;
-	
-	list[loc] projectFiles = [f | /file(f) := getProject(location), f.extension == "java"];
-	findDuplicates(projectFiles);
-	
-}
 
-public void findDuplicates(list[loc] projectFiles){	
+public tuple[int lineCount, int duplicateLines] findDuplicates(list[loc] projectFiles){	
 	list[tuple[str lines, int startIndex, bool dup]] chunks = [];
 	list[str] lines = [];
 	
@@ -44,7 +37,10 @@ public void findDuplicates(list[loc] projectFiles){
 			chunks += <chunk.lines, currLineIndex+chunk.startIndex, false>;
 		}
 		println(thisFile);
-		currLineIndex += size(readFileLines(thisFile));
+		currentLength = size(readFileLinesStripWhitespace(thisFile));
+		currLineIndex += currentLength;
+		
+		println("Length of file: <currentLength>");
 	}
 	
 	list[bool] duplicateIndicator = [];
@@ -52,25 +48,34 @@ public void findDuplicates(list[loc] projectFiles){
 		duplicateIndicator += false;
 	}
 	
-	for(int itemMainIndex <- [0..size(chunks)]) {
-	if(chunks[itemMainIndex].dup) continue;
-		for(int itemComparedIndex <- [(itemMainIndex+1)..size(chunks)]){
-			if(chunks[itemComparedIndex].dup) continue;		
-		
-			if(chunks[itemMainIndex].lines == chunks[itemComparedIndex].lines){
-				chunks[itemMainIndex].dup = true;
-				for(thisIndex <- [0..6]) {
-					duplicateIndicator[chunks[itemMainIndex].startIndex + thisIndex] = true;
-				}
-				chunks[itemComparedIndex].dup = true;
-				for(thisIndex <- [0..6]) {
-					duplicateIndicator[chunks[itemComparedIndex].startIndex + thisIndex] = true;
+	println("Chunks: <size(chunks)>");
+	
+	int chunksSize = size(chunks);
+	
+	for(int itemMainIndex <- [0..chunksSize]) {
+		if(chunks[itemMainIndex].dup) continue;
+			for(int itemComparedIndex <- [(itemMainIndex+1)..size(chunks)]){
+				if(chunks[itemComparedIndex].dup) continue;		
+			
+				if(chunks[itemMainIndex].lines == chunks[itemComparedIndex].lines){
+					chunks[itemMainIndex].dup = true;
+					for(thisIndex <- [0..6]) {
+						duplicateIndicator[chunks[itemMainIndex].startIndex + thisIndex] = true;
+					}
+					chunks[itemComparedIndex].dup = true;
+					for(thisIndex <- [0..6]) {
+						duplicateIndicator[chunks[itemComparedIndex].startIndex + thisIndex] = true;
+					}
 				}
 			}
+		if(itemMainIndex % 200 == 0) {
+			println("processed <itemMainIndex> outer chunks / <chunksSize>");
 		}
 	}
-	int trueCount = size([x| x<-duplicateIndicator, x]);
-	println("lines marked as dup: <trueCount>, total lines: <size(duplicateIndicator)>");
+	int duplicateCount = size([x| x<-duplicateIndicator, x]);
+	println("lines marked as dup: <duplicateCount>, total lines: <size(duplicateIndicator)>");
+	
+	return <size(duplicateIndicator),duplicateCount>;
 }
 
 
@@ -78,30 +83,37 @@ public list[tuple[str lines, int startIndex]] chunkify(loc file) {
 	list[tuple[str lines, int index]] result = [];
 	int currIndex = 0;
 
-	list[str] lines = readFileLines(file);
+	list[str] lines = readFileLinesStripWhitespace(file);
 	list[str] theseLines;
+	
+	int linesSize = size(lines);
 		
-	while (currIndex + 5 < size(lines)) {
+	while (currIndex + 5 < linesSize) {
 		theseLines = lines[currIndex .. (currIndex+6)];
-		result += <stripSpaceAndConcat(theseLines), currIndex>;
+		result += <trimAndConcatLines(theseLines), currIndex>;
 		currIndex += 1;
 	}
 	
 	return result;
 }
 
-public str stripSpaceAndConcat(list[str] lines) {
+public list[str] readFileLinesStripWhitespace(loc file){
+	//TODO: implement whitespace stripping logic relevant to duplicate detection here
+	//TODO: strip blank only lines? 
+	//TODO: strip (multiline)comments too?
+	return readFileLines(file);
+}
+
+public str trimAndConcatLines(list[str] lines) {
 	str result = "";
-	
 	for (line <- lines) {
-		if(trim(line) != "") result += trim(line);
+		result += trim(line);
+		//TODO: remove leading tab characters
 	}
-	
 	return result;
 }
 
 public list[loc] getIndividualJavaFiles(loc project) {
 	return [f | /file(f) := getProject(project), f.extension == "java"];
 }
-
 
