@@ -25,6 +25,8 @@ import lang::java::jdt::m3::Core;
 import lang::java::jdt::m3::AST;
 import analysis::m3::AST;
 
+import CommentStripper;
+
 
 public void VCrunOnProject(){
 	loc location = |project://smallsql0.21_src|;
@@ -37,10 +39,7 @@ public void VCrunOnProject(){
 	for(srcFile <- projectFiles){
 		LOC += getLinesOfCode(srcFile);
 	}
-	
 	println(LOC);
-	
-	
 	return;
 }
 
@@ -51,34 +50,9 @@ public list[loc] getIndividualJavaFiles(loc project) {
 }
 
 
-public int getLinesOfCode(loc file) {
-	list[str] lines = readFileLines(file);
-	return getLinesOfCode(lines);
+public int getLinesOfCode(loc location) {
+	list[str] rawLines = readFileLines(location);
+	list[str] lines = stripEmptyLineAndComments(rawLines);
+	return size(lines);
 }
 
-public void processMethods(M3 model){
-	myMethods = methods(model);
-}
-
-public int getMethodLinesOfCode(loc method){
-	list[str] lines = readFileLines(method);
-	return getLinesOfCode(lines);
-}
-
-
-/**
-Calculates the Lines of Code (LOC) as follows:
-LOC = number of lines in a location which are *not* fully whitespace.
-TODO: make spec compliant by removing comments
-*/
-public int getLinesOfCode(list[str] lines){
-	int totalLOC = 0;
-	for(str line <- lines){
-		//ignore completely blank lines
-		if(trim(line) == ""){
-			continue;
-		}
-		totalLOC += 1;
-	};
-	return totalLOC;
-}
