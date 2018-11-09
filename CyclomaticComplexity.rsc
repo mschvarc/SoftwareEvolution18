@@ -30,17 +30,24 @@ import CommentStripper;
 
 public void CCrunOnProject(){
 	loc location = |project://smallsql0.21_src|;
-	
-	printSIGCyclomaticComplexityMetrics(location);
+	println(calculateSIGCyclomaticComplexityMetricsProject(location));
 	
 	return;
 }
 
 data  SIG_INDEX = PLUS_PLUS() | PLUS() | ZERO() | MINUS() | MINUS_MINUS();
+alias CCresult =  tuple[int moderateRiskLoc, int highRiskLoc, int veryHighRiskLoc, int totalLoc];
 
-public SIG_INDEX printSIGCyclomaticComplexityMetrics(loc projectLoc){
-	set[Declaration] ast = createAstsFromEclipseProject(projectLoc, true);	
+
+public SIG_INDEX calculateSIGCyclomaticComplexityMetricsProject(loc projectLoc){
+	set[Declaration] ast = createAstsFromEclipseProject(projectLoc, true);
 	result = calculateComplexityMetric(ast);
+	
+	return calculateSIGCyclomaticComplexityMetrics(result);
+	
+}
+
+public SIG_INDEX calculateSIGCyclomaticComplexityMetrics(CCresult result){
 	
 	real zeroThreshold = 0.0001;
 	
@@ -49,22 +56,16 @@ public SIG_INDEX printSIGCyclomaticComplexityMetrics(loc projectLoc){
 	real veryHighPercent = result.veryHighRiskLoc * 1.0 / result.totalLoc;
 	
 	if(moderatePercent <= 0.25 && highPercent < zeroThreshold && veryHighPercent < zeroThreshold){
-		println("++");
 		return PLUS_PLUS();
 	} else if(moderatePercent <= 0.30 && highPercent <= 0.05 && veryHighPercent < zeroThreshold){
-		println("+");
 		return PLUS();
 	} else if(moderatePercent <= 0.40 && highPercent <= 0.10 && veryHighPercent < zeroThreshold){
-		println("O");
 		return ZERO();
 	} else if(moderatePercent <= 50 && highPercent <= 0.15 && veryHighPercent < 0.05){
-		println("-");
 		return MINUS();
 	} else {
-		println("--");
 		return MINUS_MINUS();
 	}
-	
 }
 
 
@@ -104,14 +105,14 @@ public list[tuple[int complexity, int linesOfCode]] traverseDeclaration(Declarat
 	
 	visit (ast) {
 		case methodSrc:\method(_, name, _, _, Statement impl): {
-				println(name);
+				//println(name);
 				results += traverseMethodImpl(methodSrc.src, impl);
-				println("--------");
+				//println("--------");
 			}
 		case methodSrc:\constructor(name, _,_, Statement impl): {
-				println(name);
+				//println(name);
 				results += traverseMethodImpl(methodSrc.src, impl);
-				println("--------");
+				//println("--------");
 				//impl.src gives source location range, without the method declaration line
 			}
 		}
@@ -130,27 +131,27 @@ public tuple[int complexity, int linesOfCode] traverseMethodImpl(loc source, Sta
 
 	visit(methodImpl) {
 		case \do(Statement body, Expression condition):{
-				println("do block");
+				//println("do block");
 				branches += 1;
 			}
 		case \foreach(Declaration parameter, Expression collection, Statement body):{
-				println("fe");
+				//println("fe");
 				branches += 1;
 			}
 		case \for(list[Expression] initializers, Expression condition, list[Expression] updaters, Statement body):{
-				println("for");
+				//println("for");
 				branches += 1;
 				}
     	case \for(list[Expression] initializers, list[Expression] updaters, Statement body):{
-    			println("for");
+    			//println("for");
     			branches += 1;
     		}
     	case \if(Expression condition, Statement thenBranch):{
-    			println("if");
+    			//println("if");
     			branches += 1;
     		}
     	case \if(Expression condition, Statement thenBranch, Statement elseBranch):{
-    			println("if");
+    			//println("if");
     			branches += 1;
     		}
 		/*
@@ -158,15 +159,15 @@ public tuple[int complexity, int linesOfCode] traverseMethodImpl(loc source, Sta
 		\switch(Expression expression, list[Statement] statements) 
 		*/
     	case \case(Expression expression):{
-    			println("case");
+    			//println("case");
     			branches += 1;
     		}
     	case \defaultCase():{
-    			println("default case");
+    			//println("default case");
     			branches += 1;
     		}
     	case \while(Expression condition, Statement body):{
-    			println("while");
+    			//println("while");
     			branches += 1;
     		}
     	default: {
@@ -175,7 +176,7 @@ public tuple[int complexity, int linesOfCode] traverseMethodImpl(loc source, Sta
 	}
 	
 	int ccResult = branches;
-	println("CC: <ccResult>");
+	//println("CC: <ccResult>");
 	
 	int linesOfCode = size(stripEmptyLineAndComments(readFileLines(source)));
 	
