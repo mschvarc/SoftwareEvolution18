@@ -30,12 +30,41 @@ import CommentStripper;
 
 public void CCrunOnProject(){
 	loc location = |project://smallsql0.21_src|;
-	M3 m3Model = createM3FromEclipseProject(location);
-	set[Declaration] ast = createAstsFromEclipseProject(location, true);
 	
-	calculateComplexityMetric(ast);
+	printSIGCyclomaticComplexityMetrics(location);
 	
 	return;
+}
+
+data  SIG_INDEX = PLUS_PLUS() | PLUS() | ZERO() | MINUS() | MINUS_MINUS();
+
+public SIG_INDEX printSIGCyclomaticComplexityMetrics(loc projectLoc){
+	set[Declaration] ast = createAstsFromEclipseProject(projectLoc, true);	
+	result = calculateComplexityMetric(ast);
+	
+	real zeroThreshold = 0.0001;
+	
+	real moderatePercent = result.moderateRiskLoc * 1.0 / result.totalLoc;
+	real highPercent = result.highRiskLoc * 1.0 / result.totalLoc;
+	real veryHighPercent = result.veryHighRiskLoc * 1.0 / result.totalLoc;
+	
+	if(moderatePercent <= 0.25 && highPercent < zeroThreshold && veryHighPercent < zeroThreshold){
+		println("++");
+		return PLUS_PLUS();
+	} else if(moderatePercent <= 0.30 && highPercent <= 0.05 && veryHighPercent < zeroThreshold){
+		println("+");
+		return PLUS();
+	} else if(moderatePercent <= 0.40 && highPercent <= 0.10 && veryHighPercent < zeroThreshold){
+		println("O");
+		return ZERO();
+	} else if(moderatePercent <= 50 && highPercent <= 0.15 && veryHighPercent < 0.05){
+		println("-");
+		return MINUS();
+	} else {
+		println("--");
+		return MINUS_MINUS();
+	}
+	
 }
 
 
@@ -125,8 +154,8 @@ public tuple[int complexity, int linesOfCode] traverseMethodImpl(loc source, Sta
     			branches += 1;
     		}
 		/*
-		//case \switch(Expression expression, list[Statement] statements) 
-		//TODO: what about switch itself, does that branch or only consider cases + default case?
+		The following is NOT branch itself
+		\switch(Expression expression, list[Statement] statements) 
 		*/
     	case \case(Expression expression):{
     			println("case");
