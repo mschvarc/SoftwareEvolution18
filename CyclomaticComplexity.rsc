@@ -61,7 +61,7 @@ public SIG_INDEX calculateSIGCyclomaticComplexityMetrics(CCresult result){
 		return PLUS();
 	} else if(moderatePercent <= 0.40 && highPercent <= 0.10 && veryHighPercent < zeroThreshold){
 		return ZERO();
-	} else if(moderatePercent <= 50 && highPercent <= 0.15 && veryHighPercent < 0.05){
+	} else if(moderatePercent <= 50 && highPercent <= 0.15 && veryHighPercent <= 0.05){
 		return MINUS();
 	} else {
 		return MINUS_MINUS();

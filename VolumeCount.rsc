@@ -31,7 +31,7 @@ import SigRating;
 
 public void VCrunOnProject(){
 	loc location = |project://smallsql0.21_src|;
-	calculateSIGRatingForProjectVolumeCount(calculateVolumeCountForProject(location));
+	calculateSIGRatingForProjectVolumeCount(location);
 }
 
 public SIG_INDEX calculateSIGRatingForProjectVolumeCount(loc location){
@@ -61,7 +61,6 @@ public int calculateVolumeCountForProject(loc location){
 	for(srcFile <- projectFiles){
 		LOC += getLinesOfCode(srcFile);
 	}
-	println(LOC);
 	return LOC;
 }
 

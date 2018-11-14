@@ -25,6 +25,28 @@ import lang::java::jdt::m3::Core;
 import lang::java::jdt::m3::AST;
 import analysis::m3::AST;
 
+import SigRating;
+
+
+public SIG_INDEX calculateDuplicationSigRatingProject(loc project) {
+
+	result = findDuplicates(getIndividualJavaFiles(project));
+	real percentage = result.duplicateLines * 1.0 / result.lineCount;
+
+	if(percentage < 0.03){
+		return PLUS_PLUS();
+	} else if(percentage >= 0.03 && percentage < 0.05) {
+		return PLUS();
+	} else if(percentage >= 0.05 && percentage < 0.10) {
+		return ZERO();
+	} else if(percentage >= 0.10 && percentage < 0.20) {
+		return MINUS();
+	} else {
+		return MINUS_MINUS();
+	}
+
+}
+
 
 public tuple[int lineCount, int duplicateLines] findDuplicates(list[loc] projectFiles){	
 	list[tuple[str lines, int startIndex, bool dup]] chunks = [];
@@ -36,12 +58,9 @@ public tuple[int lineCount, int duplicateLines] findDuplicates(list[loc] project
 		for(chunk <- chunkify(thisFile)) {
 			chunks += <chunk.lines, currLineIndex+chunk.startIndex, false>;
 		}
-		println(thisFile);
 		currentLength = size(readFileLinesStripWhitespace(thisFile));
 		currLineIndex += currentLength;
-		
-		println("Length of file: <currentLength>");
-	}
+		}
 	
 	list[bool] duplicateIndicator = [];
 	for(x <- [0..currLineIndex]) {
