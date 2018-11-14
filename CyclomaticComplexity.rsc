@@ -26,6 +26,7 @@ import lang::java::jdt::m3::AST;
 import analysis::m3::AST;
 
 import CommentStripper;
+import SigRating;
 
 
 public void CCrunOnProject(){
@@ -35,7 +36,6 @@ public void CCrunOnProject(){
 	return;
 }
 
-data  SIG_INDEX = PLUS_PLUS() | PLUS() | ZERO() | MINUS() | MINUS_MINUS();
 alias CCresult =  tuple[int moderateRiskLoc, int highRiskLoc, int veryHighRiskLoc, int totalLoc];
 
 
@@ -105,14 +105,10 @@ public list[tuple[int complexity, int linesOfCode]] traverseDeclaration(Declarat
 	
 	visit (ast) {
 		case methodSrc:\method(_, name, _, _, Statement impl): {
-				//println(name);
 				results += traverseMethodImpl(methodSrc.src, impl);
-				//println("--------");
 			}
 		case methodSrc:\constructor(name, _,_, Statement impl): {
-				//println(name);
 				results += traverseMethodImpl(methodSrc.src, impl);
-				//println("--------");
 				//impl.src gives source location range, without the method declaration line
 			}
 		}
@@ -127,56 +123,48 @@ public tuple[int complexity, int linesOfCode] traverseMethodImpl(loc source, Sta
 	//http://tutor.rascal-mpl.org/Recipes/Common/ColoredTrees/ColoredTrees.html
 	//!!! no recursive visit calls needed!
 	
-	int branches = 0;
+	//TODO: SIG model count &&, ||
+	
+	int branches = 1; //every program has at least 1 main branch / flow
 
 	visit(methodImpl) {
 		case \do(Statement body, Expression condition):{
-				//println("do block");
 				branches += 1;
 			}
 		case \foreach(Declaration parameter, Expression collection, Statement body):{
-				//println("fe");
 				branches += 1;
 			}
 		case \for(list[Expression] initializers, Expression condition, list[Expression] updaters, Statement body):{
-				//println("for");
 				branches += 1;
 				}
     	case \for(list[Expression] initializers, list[Expression] updaters, Statement body):{
-    			//println("for");
     			branches += 1;
     		}
     	case \if(Expression condition, Statement thenBranch):{
-    			//println("if");
     			branches += 1;
     		}
     	case \if(Expression condition, Statement thenBranch, Statement elseBranch):{
-    			//println("if");
     			branches += 1;
     		}
-		/*
-		The following is NOT branch itself
-		\switch(Expression expression, list[Statement] statements) 
-		*/
     	case \case(Expression expression):{
-    			//println("case");
     			branches += 1;
     		}
     	case \defaultCase():{
-    			//println("default case");
     			branches += 1;
     		}
     	case \while(Expression condition, Statement body):{
-    			//println("while");
     			branches += 1;
     		}
     	default: {
     		branches += 0; //NO-OP required for block
     	}
+    	/*
+		The following is NOT branch itself
+		\switch(Expression expression, list[Statement] statements) 
+		*/
 	}
 	
 	int ccResult = branches;
-	//println("CC: <ccResult>");
 	
 	int linesOfCode = size(stripEmptyLineAndComments(readFileLines(source)));
 	

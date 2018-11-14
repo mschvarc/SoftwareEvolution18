@@ -26,23 +26,44 @@ import lang::java::jdt::m3::AST;
 import analysis::m3::AST;
 
 import CommentStripper;
+import SigRating;
 
 
 public void VCrunOnProject(){
 	loc location = |project://smallsql0.21_src|;
-	M3 m3Model = createM3FromEclipseProject(location);
-	set[Declaration] ast = createAstsFromEclipseProject(location, true);
+	calculateSIGRatingForProjectVolumeCount(calculateVolumeCountForProject(location));
+}
+
+public SIG_INDEX calculateSIGRatingForProjectVolumeCount(loc location){
+	return calculateSIGRatingForVolumeCount(calculateVolumeCountForProject(location));
+}
+
+
+public SIG_INDEX calculateSIGRatingForVolumeCount(int LOC){
+	int K = 1000;
+	if(LOC < 66*K){
+		return PLUS_PLUS();
+	} else if(LOC >= 66*K && LOC < 246*K) {
+		return PLUS();
+	} else if(LOC >= 246*K && LOC < 665*K) {
+		return ZERO();
+	} else if(LOC >= 665*K && LOC < 1310*K) {
+		return MINUS();
+	} else  {
+		return MINUS_MINUS();
+	}
+}
+
+public int calculateVolumeCountForProject(loc location){
 	list[loc] projectFiles = getIndividualJavaFiles(location);
-	set[loc] projectMethods = methods(m3Model);
 	
 	int LOC = 0;
 	for(srcFile <- projectFiles){
 		LOC += getLinesOfCode(srcFile);
 	}
 	println(LOC);
-	return;
+	return LOC;
 }
-
 
 //TODO: refactor
 public list[loc] getIndividualJavaFiles(loc project) {
@@ -55,4 +76,3 @@ public int getLinesOfCode(loc location) {
 	list[str] lines = stripEmptyLineAndComments(rawLines);
 	return size(lines);
 }
-

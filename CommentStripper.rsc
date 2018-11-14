@@ -24,11 +24,15 @@ public list[str] stripEmptyLineAndComments(list[str] lines){
 	
 	for(rawLine <- lines) {
 		str trimmedLine = trim(rawLine);
+		if(trimmedLine == ""){
+			continue;
+		}
 		if(startsWith(trimmedLine, "/*")){
 			inComment = true;
 		}
 		if(endsWith(trimmedLine, "*/")){
 			inComment = false;
+			continue; //do not append comment line itself
 		}
 		//skip single line comments directly
 		if(startsWith(trimmedLine, "//")){
