@@ -14,8 +14,8 @@ import lang::java::jdt::m3::AST;
 
 import analysis::m3::AST;
 
-public void USrun() {
-	model = createM3FromEclipseProject(|project://smallsql0.21_src|);
+public void UintSize(loc proj) {
+	model = createM3FromEclipseProject(proj);
 
 	print("Avg Unit Size: ");
 	println(calculateAverageUnitSizePerProject(calculateUnitSizeForProject(model)));
