@@ -18,9 +18,15 @@ import SigRating;
 
 public void USrun() {
 	model = createM3FromEclipseProject(|project://smallsql0.21_src|);
+	
+	real avg = 0.0;
 
 	print("Avg Unit Size: ");
-	println(calculateAverageUnitSizePerProject(calculateUnitSizeForProject(model)));
+	avg = calculateAverageUnitSizePerProject(calculateUnitSizeForProject(model));
+	println(avg);
+	
+	print("SIG Rating: ");
+	println(calculateSIGRatingForUnitSize(avg));
 }
 
 
@@ -52,7 +58,6 @@ public real calculateAverageUnitSizePerProject(map[loc, int] unitSizes){
 	int methodCount = size(unitSizes);
 	
 	for(<k,v> <- toRel(unitSizes)) {
-		methodCount += 1;
 		totalLOC += v;
 	}
 	
