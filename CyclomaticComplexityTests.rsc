@@ -25,8 +25,38 @@ import lang::java::jdt::m3::Core;
 import lang::java::jdt::m3::AST;
 import analysis::m3::AST;
 
+import Type;
+
 import CommentStripper;
 import CyclomaticComplexity;
+
+import lang::java::m3::TypeSymbol;
+
+
+public bool testTraverseMethodNoBranching(){	
+	statements = \break();
+	methodBlock =  \block([statements]);
+	result = traverseMethodImpl(|project://test2/src/tests/File1.java|,methodBlock);
+	return result.linesOfCode == 12 && result.complexity == 1;
+}
+
+
+public bool testTraverseMethodSingleIf(){	
+	statements = \if(\number("1"),\break());
+	//vars1 =  \method(wildcard(), "testMethod", [\import("test")], [\number("123")], \block([inner]));
+	methodBlock =  \block([statements]);
+	result = traverseMethodImpl(|project://test2/src/tests/File1.java|,methodBlock);
+	return result.linesOfCode == 12 && result.complexity == 2;
+}
+
+public bool testTraverseMethodNestedIf(){	
+	statements = \if(\number("1"),\if(\number("2"),\break(),\break()));
+	methodBlock =  \block([statements]);
+	result = traverseMethodImpl(|project://test2/src/tests/File1.java|,methodBlock);
+	return result.linesOfCode == 12 && result.complexity == 3;
+}
+
+
 
 public bool testPP(){
 	result = calculateSIGCyclomaticComplexityMetrics(<25,0,0,100>);
@@ -54,6 +84,4 @@ public bool testMM(){
 	result = calculateSIGCyclomaticComplexityMetrics(<20,20,20,100>);
 	return result == MINUS_MINUS();
 }
-
-
 
