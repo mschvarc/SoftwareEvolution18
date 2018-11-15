@@ -7,7 +7,7 @@ import SigRating;
 
 public SIG_INDEX calculateChangeability(loc project){
 
-	cyclomaticIndex = sigIndexToInt(calculateSIGCyclomaticComplexityMetricsProject(project));
+	cyclomaticIndex = sigIndexToInt(calculateSIGCyclomaticComplexityMetricsProject(project).rating);
 	duplicateIndex = sigIndexToInt(calculateDuplicationSigRatingProject(project));
 	
 	int resultingIndex = (cyclomaticIndex + duplicateIndex) / 2;

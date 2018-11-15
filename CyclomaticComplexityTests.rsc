@@ -60,29 +60,29 @@ public test bool testTraverseMethodNestedIf(){
 
 
 public test bool testPP(){
-	result = calculateSIGCyclomaticComplexityMetrics(<25,0,0,100>);
+	result = calculateSIGCyclomaticComplexityMetrics(<0,25,0,0,100>);
 	return result == PLUS_PLUS();
 }
 
 
 public test bool testP(){
-	result = calculateSIGCyclomaticComplexityMetrics(<30,5,0,100>);
+	result = calculateSIGCyclomaticComplexityMetrics(<0,30,5,0,100>);
 	return result == PLUS();
 }
 
 
 public test bool testZ(){
-	result = calculateSIGCyclomaticComplexityMetrics(<40,10,0,100>);
+	result = calculateSIGCyclomaticComplexityMetrics(<0,40,10,0,100>);
 	return result == ZERO();
 }
 
 public test bool testM(){
-	result = calculateSIGCyclomaticComplexityMetrics(<50,15,5,100>);
+	result = calculateSIGCyclomaticComplexityMetrics(<0,50,15,5,100>);
 	return result == MINUS();
 }
 
 public test bool testMM(){
-	result = calculateSIGCyclomaticComplexityMetrics(<20,20,20,100>);
+	result = calculateSIGCyclomaticComplexityMetrics(<0,20,20,20,100>);
 	return result == MINUS_MINUS();
 }
 

@@ -20,3 +20,11 @@ x
 //y
 z
 w
+/*
+comment here
+*/ x == y;
+// /* this inner /* must be ignored by multiline comment parser!
+y == z; //NOT in a comment
+x == z; /*aaaa*/
+/*xxx*/z == w;
+1 == 2;

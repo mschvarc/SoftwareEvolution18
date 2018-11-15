@@ -36,19 +36,17 @@ public void CCrunOnProject(){
 	return;
 }
 
-alias CCresult =  tuple[int moderateRiskLoc, int highRiskLoc, int veryHighRiskLoc, int totalLoc];
+alias CCresult =  tuple[int lowRisk, int moderateRiskLoc, int highRiskLoc, int veryHighRiskLoc, int totalLoc];
+alias CCfullResult = tuple[SIG_INDEX rating, CCresult bins];
 
-
-public SIG_INDEX calculateSIGCyclomaticComplexityMetricsProject(loc projectLoc){
+public CCfullResult calculateSIGCyclomaticComplexityMetricsProject(loc projectLoc){
 	set[Declaration] ast = createAstsFromEclipseProject(projectLoc, true);
 	result = calculateComplexityMetric(ast);
 	
-	return calculateSIGCyclomaticComplexityMetrics(result);
-	
+	return <calculateSIGCyclomaticComplexityMetrics(result), result>;	
 }
 
 public SIG_INDEX calculateSIGCyclomaticComplexityMetrics(CCresult result){
-	
 	real zeroThreshold = 0.0001;
 	
 	real moderatePercent = result.moderateRiskLoc * 1.0 / result.totalLoc;
@@ -69,12 +67,13 @@ public SIG_INDEX calculateSIGCyclomaticComplexityMetrics(CCresult result){
 }
 
 
-public tuple[int moderateRiskLoc, int highRiskLoc, int veryHighRiskLoc, int totalLoc] calculateComplexityMetric(set[Declaration] ast){
+public CCresult calculateComplexityMetric(set[Declaration] ast){
 	list[tuple[int complexity, int linesOfCode]] results = [];
 	for(Declaration d <- ast) {		
 		results += traverseDeclaration(d);
 	}
 	
+	int lowRiskLoc = 0;
 	int moderateRiskLoc = 0;
 	int highRiskLoc = 0;
 	int veryHighRiskLoc = 0;
@@ -83,7 +82,9 @@ public tuple[int moderateRiskLoc, int highRiskLoc, int veryHighRiskLoc, int tota
 	for(unit <- results) {
 		int cyclomaticComplexity = unit.complexity;
 		
-		if(cyclomaticComplexity >= 11 && cyclomaticComplexity <= 20) {
+		if(cyclomaticComplexity < 11){
+			lowRiskLoc += unit.linesOfCode;
+		} else if(cyclomaticComplexity >= 11 && cyclomaticComplexity <= 20) {
 			moderateRiskLoc += unit.linesOfCode;
 		} else if(cyclomaticComplexity >= 21 && cyclomaticComplexity <= 50) {
 			highRiskLoc += unit.linesOfCode;
@@ -95,7 +96,7 @@ public tuple[int moderateRiskLoc, int highRiskLoc, int veryHighRiskLoc, int tota
 	
 	println("moderate: <moderateRiskLoc>, high: <highRiskLoc>, vhigh: <veryHighRiskLoc>, total: <totalLoc>");
 	
-	return <moderateRiskLoc,highRiskLoc,veryHighRiskLoc,totalLoc>;
+	return <lowRiskLoc, moderateRiskLoc,highRiskLoc,veryHighRiskLoc,totalLoc>;
 }
 
 //returns list of method complexities

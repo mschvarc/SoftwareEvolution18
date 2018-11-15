@@ -35,5 +35,5 @@ public test bool testMultilineCommentsMixedFile(){
 	lines = readFileLines(|project://test/src/tests/MixedMultiLineComments.java|);
 	newLines = stripEmptyLineAndComments(lines);
 	println(newLines);
-	return size(newLines) == 9;
+	return size(newLines) == 14;
 }

@@ -28,21 +28,21 @@ import analysis::m3::AST;
 import SigRating;
 
 
-public SIG_INDEX calculateDuplicationSigRatingProject(loc project) {
+public tuple[SIG_INDEX rating, real percentage] calculateDuplicationSigRatingProject(loc project) {
 
 	result = findDuplicates(getIndividualJavaFiles(project));
 	real percentage = result.duplicateLines * 1.0 / result.lineCount;
 
 	if(percentage < 0.03){
-		return PLUS_PLUS();
+		return <PLUS_PLUS(),percentage>;
 	} else if(percentage >= 0.03 && percentage < 0.05) {
-		return PLUS();
+		return <PLUS(),percentage>;
 	} else if(percentage >= 0.05 && percentage < 0.10) {
-		return ZERO();
+		return <ZERO(),percentage>;
 	} else if(percentage >= 0.10 && percentage < 0.20) {
-		return MINUS();
+		return <MINUS(),percentage>;
 	} else {
-		return MINUS_MINUS();
+		return <MINUS_MINUS(),percentage>;
 	}
 
 }

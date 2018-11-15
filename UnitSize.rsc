@@ -30,6 +30,13 @@ public void USrun() {
 }
 
 
+public tuple[SIG_INDEX rating, real avgsize] calculateSigRatingUnitSizeAll(loc location){
+	result = calculateAverageUnitSizePerProject(
+				calculateUnitSizeForProject(
+					createM3FromEclipseProject(location)));
+	return <calculateSIGRatingForUnitSize(result), result>;
+}
+
 public SIG_INDEX calculateUnitSizeSIGRatingForProject(loc location){
 	return calculateSIGRatingForUnitSize(
 		calculateAverageUnitSizePerProject(

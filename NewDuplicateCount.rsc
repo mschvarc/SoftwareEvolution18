@@ -14,6 +14,32 @@ import lang::java::m3::Core;
 import util::Math;
 import util::Resources;
 
+import SigRating;
+
+public tuple[SIG_INDEX rating, real percentage] getSigDuplication(loc project) {
+	result = getDupRatioProject(project);
+	return <classifyDuplication(result.ratio), result.ratio>;
+}
+
+public SIG_INDEX classifyDuplication(real percentage){
+	if(percentage < 0.03){
+		return PLUS_PLUS();
+	} else if(percentage >= 0.03 && percentage < 0.05) {
+		return PLUS();
+	} else if(percentage >= 0.05 && percentage < 0.10) {
+		return ZERO();
+	} else if(percentage >= 0.10 && percentage < 0.20) {
+		return MINUS();
+	} else {
+		return MINUS_MINUS();
+	}
+}
+
+public  tuple[real ratio, int lineCount, int duplicateLines] getDupRatioProject(loc proj) {
+	return getDupRatio(getProjFiles(proj));
+}
+
+
 /**
  *  function getDupRatio
  *	@param 	loc 	-> location of project to be analysed
@@ -22,12 +48,9 @@ import util::Resources;
  *	This function calculates the duplicate code chunk ratio in a given project. It does this by going over each line of code in every Java file in the project and extracting each chunk. Whenever we get a chunk, we store it in a set. If we have already encountered a chunk, this means we found a chunk of duplicate code. To keep track of this, we add the Chunk Size to the counter. If the last chunk we checked already was a duplicate, this means the current duplicate chunk is overlapped by the last one. To account for this, we only add 1 to the duplicate lines counter. At the end of each file, we get the size of the list containing all the LOC in that file and add it to a counter so that we know the total amount of code lines in the project. The end result is the Number of Duplicate Lines divided by the Total Amount of Lines.
  */
 
-public real getDupRatio(loc proj) 
+public tuple[real ratio, int lineCount, int duplicateLines] getDupRatio(list[loc] projFiles) 
 {
-	// get all of the individual Java Files from the project
-	list[loc] projFiles = getProjFiles(proj);
-	
-	// no magic numbers
+	// window size
 	int CHUNK_SIZE = 6;
 	
 	// set up some counters and keep-track-of-ers
@@ -50,7 +73,7 @@ public real getDupRatio(loc proj)
 		currLines = stripEmptyLineAndComments(readFileLines(currFile));
 		
 		// loop over all of the chunks in this file
-		for (int index <- [0..(size(currLines)-6)])
+		for (int index <- [0..(size(currLines)-CHUNK_SIZE+1)])
 		{
 			// get each individual chunk as a concatenated string
 			currChunk = getChunk(currLines[index..index+CHUNK_SIZE]);
@@ -86,7 +109,7 @@ public real getDupRatio(loc proj)
 	println("Total Lines of Code: <totalLOC>, number of duplicate lines: <dupLOCCount>");
 	
 	// we have parsed all of the LOC in all of the files, return the calculated result
-	return dupLOCCount * 1.0 / totalLOC;
+	return <dupLOCCount * 1.0 / totalLOC,totalLOC, dupLOCCount >;
 }
 
 public str getChunk(list[str] l) {

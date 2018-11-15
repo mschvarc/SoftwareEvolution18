@@ -29,13 +29,10 @@ import CommentStripper;
 import SigRating;
 
 
-public void VCrunOnProject(){
-	loc location = |project://smallsql0.21_src|;
-	calculateSIGRatingForProjectVolumeCount(location);
-}
 
-public SIG_INDEX calculateSIGRatingForProjectVolumeCount(loc location){
-	return calculateSIGRatingForVolumeCount(calculateVolumeCountForProject(location));
+public tuple[SIG_INDEX rating, int volume] calculateSIGRatingForProjectVolumeCount(loc location){
+	result = calculateVolumeCountForProject(location);
+	return <calculateSIGRatingForVolumeCount(result), result>;
 }
 
 

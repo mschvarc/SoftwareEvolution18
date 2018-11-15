@@ -7,7 +7,7 @@ import lang::java::m3::Core;
 import lang::java::jdt::m3::Core;
 import lang::java::jdt::m3::AST;
 
-public void testUnitSizeSingleMethod() {
+public test bool testUnitSizeSingleMethod() {
 	loc thisProj = |project://test|;
 	
 	M3 thisModel = createM3FromEclipseProject(thisProj);
@@ -30,6 +30,8 @@ public void testUnitSizeSingleMethod() {
 		println(expSize == unitSize ? "TRUE" : "FALSE");
 		
 	}
+	
+	return false; //TODO: fix me into real test
 }
 
 public test bool testUnitSizeSingleProject() {
