@@ -19,20 +19,20 @@ import String;
 
 import CommentStripper;
 
-public bool testNoCommentsFile(){
-	lines = readFileLines(|project://test2/src/tests/File1.java|);
+public test bool testNoCommentsFile(){
+	lines = readFileLines(|project://test/src/tests/File1.java|);
 	newLines = stripEmptyLineAndComments(lines);
 	return size(newLines) == 12;
 }
 
-public bool testSingleLineCommentsFile(){
-	lines = readFileLines(|project://test2/src/tests/SingleLineComments.java|);
+public test  bool testSingleLineCommentsFile(){
+	lines = readFileLines(|project://test/src/tests/SingleLineComments.java|);
 	newLines = stripEmptyLineAndComments(lines);
 	return size(newLines) == 9;
 }
 
-public bool testMultilineCommentsMixedFile(){
-	lines = readFileLines(|project://test2/src/tests/MixedMultiLineComments.java|);
+public test bool testMultilineCommentsMixedFile(){
+	lines = readFileLines(|project://test/src/tests/MixedMultiLineComments.java|);
 	newLines = stripEmptyLineAndComments(lines);
 	println(newLines);
 	return size(newLines) == 9;

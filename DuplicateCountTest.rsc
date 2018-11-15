@@ -29,30 +29,31 @@ import lang::java::jdt::m3::AST;
 import analysis::m3::AST;
 
 
-public bool testTwoDuplicateFiles50percent(){
-	list[loc] locs = [|project://test2/src/File1.java|,|project://test2/src/File2.java|];
+public test bool testTwoDuplicateFiles50percent(){
+	list[loc] locs = [|project://test/src/tests/File1.java|,|project://test/src/tests/File2.java|];
 	result = findDuplicates(locs);
 	return result.lineCount == 24 && result.duplicateLines == 14;
 }
 
-public bool testDuplicatesSameFileTwice(){
-	list[loc] locs = [|project://test2/src/File1.java|,|project://test2/src/File1.java|];
+public test bool testDuplicatesSameFileTwice(){
+	list[loc] locs = [|project://test/src/tests/File1.java|,|project://test/src/tests/File1.java|];
 	result = findDuplicates(locs);
 	return result.lineCount == 24 && result.duplicateLines == 24;
 }
 
-public bool testNoDuplicateFiles(){
-	list[loc] locs = [|project://test2/src/File1.java|,|project://test2/src/File3.java|];
+public test bool testNoDuplicateFiles(){
+	list[loc] locs = [|project://test/src/tests/File1.java|,|project://test/src/tests/File3.java|];
 	result = findDuplicates(locs);
 	return result.lineCount == 24 && result.duplicateLines == 0;
 }
 
 
-public bool testChunkifyFile12lines(){
-	chunks = chunkify(|project://test2/src/File1.java|);
+public test bool testChunkifyFile12lines(){
+	chunks = chunkify(|project://test/src/tests/File1.java|);
 	return size(chunks) == 7;
 }
 
+//TODO: add back test
 public void getDuplicateCountSmallSql() {
 	loc location = |project://smallsql0.21_src|;
 	

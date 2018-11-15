@@ -32,55 +32,56 @@ import CyclomaticComplexity;
 
 import lang::java::m3::TypeSymbol;
 
+import SigRating;
 
-public bool testTraverseMethodNoBranching(){	
+
+public test bool testTraverseMethodNoBranching(){	
 	statements = \break();
 	methodBlock =  \block([statements]);
-	result = traverseMethodImpl(|project://test2/src/tests/File1.java|,methodBlock);
+	result = traverseMethodImpl(|project://test/src/tests/File1.java|,methodBlock);
 	return result.linesOfCode == 12 && result.complexity == 1;
 }
 
 
-public bool testTraverseMethodSingleIf(){	
+public test  bool testTraverseMethodSingleIf(){	
 	statements = \if(\number("1"),\break());
 	//vars1 =  \method(wildcard(), "testMethod", [\import("test")], [\number("123")], \block([inner]));
 	methodBlock =  \block([statements]);
-	result = traverseMethodImpl(|project://test2/src/tests/File1.java|,methodBlock);
+	result = traverseMethodImpl(|project://test/src/tests/File1.java|,methodBlock);
 	return result.linesOfCode == 12 && result.complexity == 2;
 }
 
-public bool testTraverseMethodNestedIf(){	
+public test bool testTraverseMethodNestedIf(){	
 	statements = \if(\number("1"),\if(\number("2"),\break(),\break()));
 	methodBlock =  \block([statements]);
-	result = traverseMethodImpl(|project://test2/src/tests/File1.java|,methodBlock);
+	result = traverseMethodImpl(|project://test/src/tests/File1.java|,methodBlock);
 	return result.linesOfCode == 12 && result.complexity == 3;
 }
 
 
-
-public bool testPP(){
+public test bool testPP(){
 	result = calculateSIGCyclomaticComplexityMetrics(<25,0,0,100>);
 	return result == PLUS_PLUS();
 }
 
 
-public bool testP(){
+public test bool testP(){
 	result = calculateSIGCyclomaticComplexityMetrics(<30,5,0,100>);
 	return result == PLUS();
 }
 
 
-public bool testZ(){
+public test bool testZ(){
 	result = calculateSIGCyclomaticComplexityMetrics(<40,10,0,100>);
 	return result == ZERO();
 }
 
-public bool testM(){
+public test bool testM(){
 	result = calculateSIGCyclomaticComplexityMetrics(<50,15,5,100>);
 	return result == MINUS();
 }
 
-public bool testMM(){
+public test bool testMM(){
 	result = calculateSIGCyclomaticComplexityMetrics(<20,20,20,100>);
 	return result == MINUS_MINUS();
 }
