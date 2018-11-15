@@ -15,7 +15,11 @@ import util::Math;
 import util::Resources;
 
 /**
- *  
+ *  function getDupRatio
+ *	@param 	loc 	-> location of project to be analysed
+ *	@return real	-> float in range [0,1) indicating amount of duplication in the project
+ *
+ *	This function calculates the duplicate code chunk ratio in a given project. It does this by going over each line of code in every Java file in the project and extracting each chunk. Whenever we get a chunk, we store it in a set. If we have already encountered a chunk, this means we found a chunk of duplicate code. To keep track of this, we add the Chunk Size to the counter. If the last chunk we checked already was a duplicate, this means the current duplicate chunk is overlapped by the last one. To account for this, we only add 1 to the duplicate lines counter. At the end of each file, we get the size of the list containing all the LOC in that file and add it to a counter so that we know the total amount of code lines in the project. The end result is the Number of Duplicate Lines divided by the Total Amount of Lines.
  */
 
 public real getDupRatio(loc proj) 
