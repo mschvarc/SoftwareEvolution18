@@ -29,20 +29,12 @@ import CommentStripper;
 import SigRating;
 
 
-public void CCrunOnProject(){
-	loc location = |project://smallsql0.21_src|;
-	println(calculateSIGCyclomaticComplexityMetricsProject(location));
-	
-	return;
-}
-
-alias CCresult =  tuple[int lowRisk, int moderateRiskLoc, int highRiskLoc, int veryHighRiskLoc, int totalLoc];
+alias CCresult =  tuple[int lowRiskLoc, int moderateRiskLoc, int highRiskLoc, int veryHighRiskLoc, int totalLoc];
 alias CCfullResult = tuple[SIG_INDEX rating, CCresult bins];
 
 public CCfullResult calculateSIGCyclomaticComplexityMetricsProject(loc projectLoc){
 	set[Declaration] ast = createAstsFromEclipseProject(projectLoc, true);
 	result = calculateComplexityMetric(ast);
-	
 	return <calculateSIGCyclomaticComplexityMetrics(result), result>;	
 }
 
@@ -94,7 +86,7 @@ public CCresult calculateComplexityMetric(set[Declaration] ast){
 		totalLoc += unit.linesOfCode;
 	}
 	
-	println("moderate: <moderateRiskLoc>, high: <highRiskLoc>, vhigh: <veryHighRiskLoc>, total: <totalLoc>");
+	//println("moderate: <moderateRiskLoc>, high: <highRiskLoc>, vhigh: <veryHighRiskLoc>, total: <totalLoc>");
 	
 	return <lowRiskLoc, moderateRiskLoc,highRiskLoc,veryHighRiskLoc,totalLoc>;
 }

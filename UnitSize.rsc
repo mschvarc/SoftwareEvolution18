@@ -16,19 +16,6 @@ import analysis::m3::AST;
 
 import SigRating;
 
-public void USrun() {
-	model = createM3FromEclipseProject(|project://smallsql0.21_src|);
-	
-	real avg = 0.0;
-
-	print("Avg Unit Size: ");
-	avg = calculateAverageUnitSizePerProject(calculateUnitSizeForProject(model));
-	println(avg);
-	
-	print("SIG Rating: ");
-	println(calculateSIGRatingForUnitSize(avg));
-}
-
 
 public tuple[SIG_INDEX rating, real avgsize] calculateSigRatingUnitSizeAll(loc location){
 	result = calculateAverageUnitSizePerProject(
@@ -67,9 +54,7 @@ public real calculateAverageUnitSizePerProject(map[loc, int] unitSizes){
 	for(<k,v> <- toRel(unitSizes)) {
 		totalLOC += v;
 	}
-	
-	println("methods: <methodCount>, total LOC: <totalLOC>, avg size: <totalLOC * 1.0 / methodCount>");
-	
+		
 	return totalLOC * 1.0 / methodCount;
 }
 

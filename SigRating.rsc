@@ -7,7 +7,7 @@ public int sigIndexToInt(SIG_INDEX index){
 		case PLUS_PLUS():
 			return 5;
 		case PLUS():
-			return 5;
+			return 4;
 		case ZERO():
 			return 3;
 		case MINUS():
