@@ -29,13 +29,21 @@ import CommentStripper;
 import SigRating;
 
 
-
+/**
+* Classifies volume for Java project according to SIG methodology
+* @param location project location
+* @return rating and total volume (LOC)
+*/
 public tuple[SIG_INDEX rating, int volume] calculateSIGRatingForProjectVolumeCount(loc location){
 	result = calculateVolumeCountForProject(location);
 	return <calculateSIGRatingForVolumeCount(result), result>;
 }
 
-
+/**
+* Classifies volume for Java LOC according to SIG methodology
+* @param LOC
+* @return rating
+*/
 public SIG_INDEX calculateSIGRatingForVolumeCount(int LOC){
 	int K = 1000;
 	if(LOC < 66*K){
@@ -61,13 +69,12 @@ public int calculateVolumeCountForProject(loc location){
 	return LOC;
 }
 
-//TODO: refactor
-public list[loc] getIndividualJavaFiles(loc project) {
+private list[loc] getIndividualJavaFiles(loc project) {
 	return [f | /file(f) := getProject(project), f.extension == "java"];
 }
 
 
-public int getLinesOfCode(loc location) {
+private int getLinesOfCode(loc location) {
 	list[str] rawLines = readFileLines(location);
 	list[str] lines = stripEmptyLineAndComments(rawLines);
 	return size(lines);

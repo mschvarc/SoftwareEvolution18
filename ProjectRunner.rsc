@@ -14,8 +14,15 @@ import NewDuplicateCount;
 import SigRating;
 import Maintainability;
 
-public void runAll(){
-	loc location = |project://smallsql0.21_src|;
+public void runSmallSql(){
+	runAll(|project://smallsql0.21_src|);
+}
+
+public void runHsql(){
+	runAll(|project://smallsql0.21_src|);
+}
+
+public void runAll(loc location){
 	
 	printNewLine();
 	cyclomatic = calculateSIGCyclomaticComplexityMetricsProject(location);

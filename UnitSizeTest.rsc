@@ -14,7 +14,7 @@ public test bool testUnitSizeSingleMethod() {
 	
 	set[loc] theseMethods = methods(thisModel);
 	
-	num expSize = 5;
+	num expSize = 14;
 	num unitSize;
 	
 	for (thisMethod <- theseMethods) {
@@ -28,10 +28,10 @@ public test bool testUnitSizeSingleMethod() {
 		print(unitSize);
 		print(", Match = ");
 		println(expSize == unitSize ? "TRUE" : "FALSE");
-		
+		if(expSize != unitSize){return false;}
 	}
 	
-	return false; //TODO: fix me into real test
+	return true; //all assertions passed
 }
 
 public test bool testUnitSizeSingleProject() {
@@ -39,7 +39,7 @@ public test bool testUnitSizeSingleProject() {
 	
 	M3 thisModel = createM3FromEclipseProject(thisProj);
 		
-	num expSize = 5;
+	num expSize = 14;
 	real projAvgSize = calculateAverageUnitSizePerProject(
 							calculateUnitSizeForProject(thisModel));
 		

@@ -5,6 +5,12 @@ import DuplicateCount;
 
 import SigRating;
 
+/**
+* Calculates changability score based on input parameters
+* @param cyclomatic
+* @param duplication
+* @return resulting changability index
+*/
 public SIG_INDEX calculateChangeability(SIG_INDEX cyclomatic, SIG_INDEX duplication){
 
 	cyclomaticIndex = sigIndexToInt(cyclomatic);

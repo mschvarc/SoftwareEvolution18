@@ -6,14 +6,7 @@ import NewDuplicateCount;
 import IO;
 import List;
 import String;
-import lang::java::m3::Core;
-import lang::java::jdt::m3::Core;
-import lang::java::jdt::m3::AST;
-import analysis::m3::AST;
 import IO;
-import lang::java::m3::Core;
-import lang::java::jdt::m3::Core;
-import lang::java::jdt::m3::AST;
 import List;
 import Set;
 import Relation;
@@ -23,10 +16,7 @@ import util::Math;
 import util::Resources;
 import List;
 import String;
-import lang::java::m3::Core;
-import lang::java::jdt::m3::Core;
-import lang::java::jdt::m3::AST;
-import analysis::m3::AST;
+
 
 
 public test bool testTwoDuplicateFiles50percent(){

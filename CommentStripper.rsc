@@ -8,10 +8,20 @@ import lang::java::jdt::m3::Core;
 import lang::java::jdt::m3::AST;
 import analysis::m3::AST;
 
+/**
+* Converts a single line to multi line array based on line endings
+* @param input
+* @return original string split on newline
+*/
 public list[str] convertToLines(str line){
 	return split("\n", line);
 }
 
+/**
+* Function to remove all whitespace only lines and comments
+* @param lines input
+* @return lines stripped of whitespace and comments
+*/
 public list[str] stripEmptyLineAndComments(list[str] lines){
 
 	bool inComment = false;
@@ -24,6 +34,7 @@ public list[str] stripEmptyLineAndComments(list[str] lines){
 		if(trimmedLine == ""){
 			continue;
 		}
+		//NOTE: if a single line comment contains /* or */ , it must be ignored per Java grammar
 		if(startsWith(trimmedLine, "//")){
 			continue;
 		}
@@ -38,7 +49,6 @@ public list[str] stripEmptyLineAndComments(list[str] lines){
 				trimmedLine = right;
 			}
 		}
-		
 		if(inComment){
 			continue;
 		}
@@ -49,14 +59,14 @@ public list[str] stripEmptyLineAndComments(list[str] lines){
 	return result;
 }
 
-public str stripEmbeddedQuotes(str line) {
+private str stripEmbeddedQuotes(str line) {
 	while(/<left:.*>\".*\"<right:.*>/ := line) {
 		line = left + right;
 	}
 	return line;
 }
 
-public str stripEmbeddedComments(str line){
+private str stripEmbeddedComments(str line){
 	while(/<left:.*>\/\*.*\*\/<right:.*>/ := line) {
 		line = left + right;
 	}

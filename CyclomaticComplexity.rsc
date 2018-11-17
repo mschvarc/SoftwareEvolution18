@@ -32,12 +32,21 @@ import SigRating;
 alias CCresult =  tuple[int lowRiskLoc, int moderateRiskLoc, int highRiskLoc, int veryHighRiskLoc, int totalLoc];
 alias CCfullResult = tuple[SIG_INDEX rating, CCresult bins];
 
+/**
+* Classifies project method complexities according to the SIG methodology
+* @param projectLoc project location
+* @return SIG rating
+*/
 public CCfullResult calculateSIGCyclomaticComplexityMetricsProject(loc projectLoc){
 	set[Declaration] ast = createAstsFromEclipseProject(projectLoc, true);
 	result = calculateComplexityMetric(ast);
 	return <calculateSIGCyclomaticComplexityMetrics(result), result>;	
 }
 
+/**
+* Classifies relative method complexities according to the SIG methodology
+* @return SIG rating
+*/
 public SIG_INDEX calculateSIGCyclomaticComplexityMetrics(CCresult result){
 	real zeroThreshold = 0.0001;
 	
@@ -58,7 +67,9 @@ public SIG_INDEX calculateSIGCyclomaticComplexityMetrics(CCresult result){
 	}
 }
 
-
+/**
+* Calculates complexity metrics for given ASTs according to the SIG methodology
+*/
 public CCresult calculateComplexityMetric(set[Declaration] ast){
 	list[tuple[int complexity, int linesOfCode]] results = [];
 	for(Declaration d <- ast) {		
@@ -85,13 +96,15 @@ public CCresult calculateComplexityMetric(set[Declaration] ast){
 		}
 		totalLoc += unit.linesOfCode;
 	}
-	
-	//println("moderate: <moderateRiskLoc>, high: <highRiskLoc>, vhigh: <veryHighRiskLoc>, total: <totalLoc>");
-	
+		
 	return <lowRiskLoc, moderateRiskLoc,highRiskLoc,veryHighRiskLoc,totalLoc>;
 }
 
-//returns list of method complexities
+/**
+* Calculates complexity of given declaration
+* @param ast AST for which to calculate complexity
+* @return list of method complexities
+*/
 public list[tuple[int complexity, int linesOfCode]] traverseDeclaration(Declaration ast){
 
 	list[tuple[int complexity, int linesOfCode]] results = [];
