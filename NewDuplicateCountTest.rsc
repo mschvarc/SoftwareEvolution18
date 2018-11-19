@@ -31,6 +31,18 @@ public test bool testDuplicatesSameFileTwice(){
 	return result.lineCount == 24 && result.duplicateLines == 12;
 }
 
+public test bool testDuplicatesSameFileOnlyWithX(){
+	list[loc] locs = [|project://test/src/tests/File4.java|];
+	result = getDupRatio(locs);
+	return result.lineCount == 13 && result.duplicateLines == 6;
+}
+
+public test bool testDuplicatesSameFileOnlyDuplciatedBlock(){
+	list[loc] locs = [|project://test/src/tests/File5.java|];
+	result = getDupRatio(locs);
+	return result.lineCount == 12 && result.duplicateLines == 6;
+}
+
 public test bool testNoDuplicateFiles(){
 	list[loc] locs = [|project://test/src/tests/File1.java|,|project://test/src/tests/File3.java|];
 	result = getDupRatio(locs);
