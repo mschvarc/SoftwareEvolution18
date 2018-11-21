@@ -62,3 +62,24 @@ The numeric rating is then converted in reverse to the SIG rating.
 The SIG ratings can be converted to ISO 9126 maintainability ratings by taking the average of multiple SIG metrics. 
 
 ### Results
+
+#### SmallSQL
+
+Analysability: `+`
+
+Changeability: `-`
+
+Testability: `0`
+
+Maintainability: `0`
+
+
+#### HSQL
+
+Analysability: `0`
+
+Changeability: `--`
+
+Testability: `0`
+
+Maintainability: `-`
