@@ -1,5 +1,5 @@
 # SoftwareEvolution18
-## Martin SchvarcBacher and Jelle Manders
+## Martin Schvarcbacher and Jelle Manders
 
 ## Volume
 The volume metric is by far the simplest of the analyzed four; We simply go over all of the Java Files, strip them of all comment and blank lines, and count whatever is left. This is done by asking RASCAL for all of the JAVA files in the project, parsing each of them with our Comment and Whiteline stripper, and counting the amount of lines left.
@@ -16,3 +16,29 @@ Since the Duplicate chunks can also be bigger than 6 lines, we devised a sort of
 * If the chunk is already in the set, this means we have encountered this chunk before. We mark this section of six lines as duplicate.
 * If the last chunk that we checked already was a duplicate chunk, this means we haven't found a completely new duplicate chunk. We just found a duplicate chunk that is more than 6 lines long. Instead of marking all of the code as duplicate, we only add 1 LOC to the duplicate counter.
 * After parsing all of the files like this we have counted how many LOC we encountered, and how many of these are encountered more than once. This gives us all the necessary information to calculate the Duplication Rate.
+
+
+## Cyclomatic Complexity
+
+We use M3 to convert the Java source code to an AST. For each encountered unit (method for Java), we traverse the AST declaration. 
+For each branch in a method, we count the number of branching statements (`if`, `else if`, `else`, `case` inside `switch`, `ternary operator`) and inside each if statement we add a new branch for each `&&` and `||` operator.
+
+The resulting cyclomatic complexity is aggregated into 5 separate "bins" according to the SIG cyclomatic complexity rating methodology. 
+From this we derive the final SIG rating. 
+
+### Results:
+
+|Project|Low Risk | Medium Risk | High Risk | Very High Risk | Rating |
+| --- |  --- |  --- |  --- |  --- |  --- | 
+|SmallSQL|
+|HSQLDB|
+
+
+## Aggregated Metrics
+For each atomic metric described above we can derive aggregated metrics using at least two or more atomic metrics. 
+We assign a numeric value to each SIG rating (5 = `++`, 1 = `--`) and use arithmentic average of the individual ratings to derive the aggregated metric. 
+The numeric rating is then converted in reverse to the SIG rating. 
+
+The SIG ratings can be converted to ISO 9126 maintainability ratings by taking the average of multiple SIG metrics. 
+
+### Results
