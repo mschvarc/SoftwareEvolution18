@@ -1,7 +1,8 @@
 # SoftwareEvolution18
 ## Martin SchvarcBacher and Jelle Manders
 
-
+## Unit Size
+Units are the smallest bits of codde that can be run on its own. For JAVA, these units are functions. This makes our life very easy, since RASCAL has a builtin method (`MR.methods()`) that returns the strings encompassing all of the functions in a project. We simply call this function over the given project, parse all of the chunks of code given to us by this function, strip the chunk of all empty and comment lines, including docblocks at the top of the function, and count whatever is left. We average this result over all of the methods in the project, and end up with the Average Unit Size in the project.
 
 ## Duplicate Lines of Code (LOC)
 Duplicate lines of code are defined as chunks of at least six lines, if we encounter six lines of code and encounter these exact same lines (excluding comments and whitelines) later, the second (and third, fourth, and so on) will be marked as duplicate. Note that the original will not be marked as a duplicate, hence the ratio of duplicate code will never quite reach 1.
