@@ -38,7 +38,11 @@ public void runAll(loc location){
 	
 	printNewLine();
 	unit = calculateSigRatingUnitSizeAll(location);
-	println("Unit size: rating: <unit.rating>, avg unit size: <unit.avgsize>");
+	println("Unit size: rating: <unit.rating>");
+	printCyclomaticRisk("low", unit.bins.low, unit.bins.total);
+	printCyclomaticRisk("medium", unit.bins.moderate, unit.bins.total);
+	printCyclomaticRisk("high", unit.bins.high, unit.bins.total);
+	printCyclomaticRisk("very high", unit.bins.veryHigh, unit.bins.total);
 	
 	printNewLine();
 	volume = calculateSIGRatingForProjectVolumeCount(location);

@@ -16,12 +16,16 @@ import analysis::m3::AST;
 
 import SigRating;
 
+alias USresult =  tuple[int low, int moderate, int high, int veryHigh, int total];
+alias USfullResult = tuple[SIG_INDEX rating, USresult bins];
+
+
 /**
 * Calculates unit size for a project according to the SIG methodology.
 * @param location
-* @return rating and average unit size
+* @return UnitSize full result
 */
-public tuple[SIG_INDEX rating, real avgsize] calculateSigRatingUnitSizeAll(loc location){
+public USfullResult calculateSigRatingUnitSizeAll(loc location){
 	result = calculateAverageUnitSizePerProject(
 				calculateUnitSizeForProject(
 					createM3FromEclipseProject(location)));
@@ -44,17 +48,21 @@ public SIG_INDEX calculateUnitSizeSIGRatingForProject(loc location){
 /**
 * Classifies average LOC per unit to a SIG rating
 */
-public SIG_INDEX calculateSIGRatingForUnitSize(real avgLOC){
-//TODO: literature study for ratings
-	if(avgLOC < 15){
+public SIG_INDEX calculateSIGRatingForUnitSize(USresult result)
+{
+	real moderatePercent = result.moderate * 1.0 / result.total;
+	real highPercent = result.high * 1.0 / result.total;
+	real veryHighPercent = result.veryHigh * 1.0 / result.total;
+	
+	if(moderatePercent <= 0.25 && highPercent == 0 && veryHighPercent == 0){
 		return PLUS_PLUS();
-	} else if(avgLOC >= 15 && avgLOC < 20) {
+	} else if(moderatePercent <= 0.30 && highPercent <= 0.05 && veryHighPercent == 0){
 		return PLUS();
-	} else if(avgLOC >= 20 && avgLOC < 25) {
+	} else if(moderatePercent <= 0.40 && highPercent <= 0.10 && veryHighPercent == 0){
 		return ZERO();
-	} else if(avgLOC >= 25 && avgLOC < 30) {
+	} else if(moderatePercent <= 50 && highPercent <= 0.15 && veryHighPercent <= 0.05){
 		return MINUS();
-	} else  {
+	} else {
 		return MINUS_MINUS();
 	}
 }
@@ -62,15 +70,17 @@ public SIG_INDEX calculateSIGRatingForUnitSize(real avgLOC){
 /**
 * Calculates average unit size for the project
 */
-public real calculateAverageUnitSizePerProject(map[loc, int] unitSizes){
-	int totalLOC = 0;
-	int methodCount = size(unitSizes);
+public USresult calculateAverageUnitSizePerProject(map[loc, int] unitSizes){
+	USresult result = <0,0,0,0,0>;
 	
 	for(<k,v> <- toRel(unitSizes)) {
-		totalLOC += v;
+		if (v < 20) { result.low += 1; result.total += 1; }
+		else if (v < 50) { result.moderate += 1; result.total += 1; }
+		else if (v < 100) { result.high += 1; result.total += 1; }
+		else { result.veryHigh += 1; result.total += 1; }
 	}
 		
-	return totalLOC * 1.0 / methodCount;
+	return result;
 }
 
 /**
