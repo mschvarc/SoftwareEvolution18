@@ -7,7 +7,7 @@ import SigRating;
 
 public test bool testVolumeSubdirectory() {
 	result = calculateVolumeCountForProject(|project://test/src/tests/|);
-	return result == 94;
+	return result == 119;
 }
 
 

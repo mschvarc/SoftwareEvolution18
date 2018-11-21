@@ -129,7 +129,6 @@ public tuple[int complexity, int linesOfCode] traverseMethodImpl(loc source, Sta
 	//http://tutor.rascal-mpl.org/Recipes/Common/ColoredTrees/ColoredTrees.html
 	//!!! no recursive visit calls needed!
 	
-	//TODO: SIG model count &&, ||
 	
 	int branches = 1; //every program has at least 1 main branch / flow
 
@@ -161,6 +160,15 @@ public tuple[int complexity, int linesOfCode] traverseMethodImpl(loc source, Sta
     	case \while(Expression condition, Statement body):{
     			branches += 1;
     		}
+    	case \infix(_, "&&", _): {
+    		branches += 1;
+    	}
+    	case \infix(_, "||", _): {
+    		branches += 1;
+    	}
+    	case \conditional(_,_,_): {
+    		branches += 1;
+    	}
     	default: {
     		branches += 0; //NO-OP required for block
     	}
