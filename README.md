@@ -1,6 +1,9 @@
 # SoftwareEvolution18
 ## Martin SchvarcBacher and Jelle Manders
 
+## Volume
+The volume metric is by far the simplest of the analyzed four; We simply go over all of the Java Files, strip them of all comment and blank lines, and count whatever is left. This is done by asking RASCAL for all of the JAVA files in the project, parsing each of them with our Comment and Whiteline stripper, and counting the amount of lines left.
+
 ## Unit Size
 Units are "the smallest piece of code that can be executed and tested individually" (Heitlager). For JAVA, these units are functions. This makes our life very easy, since RASCAL has a builtin method (`MR.methods()`) that returns the strings encompassing all of the functions in a project. We simply call this function over the given project, parse all of the chunks of code given to us by this function, strip the chunk of all empty and comment lines, including docblocks at the top of the function, and count whatever is left. We average this result over all of the methods in the project, and end up with the Average Unit Size in the project.
 
