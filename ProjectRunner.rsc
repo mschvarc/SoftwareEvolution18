@@ -3,7 +3,6 @@ module ProjectRunner
 import Analysability;
 import Changeability;
 import CyclomaticComplexity;
-import DuplicateCount;
 import Maintainability;
 import SigRating;
 import Testability;
@@ -19,7 +18,7 @@ public void runSmallSql(){
 }
 
 public void runHsql(){
-	runAll(|project://smallsql0.21_src|);
+	runAll(|project://hsqldb-2.3.1|);
 }
 
 public void runAll(loc location){
@@ -34,7 +33,8 @@ public void runAll(loc location){
 	
 	printNewLine();
 	duplication = getSigDuplication(location);
-	println("Duplication: rating: <duplication.rating>, lines duplicated: <duplication.percentage * 100>%");
+	println("Duplication: rating: <duplication.rating>, lines duplicated: <duplication.result.ratio * 100>%");
+	println("Duplicated lines: <duplication.result.duplicateLines> out of: <duplication.result.lineCount>");
 	
 	printNewLine();
 	unit = calculateSigRatingUnitSizeAll(location);

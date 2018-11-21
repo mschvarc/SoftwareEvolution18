@@ -16,15 +16,16 @@ import util::Resources;
 
 import SigRating;
 
+alias DuplicateResult = tuple[real ratio, int lineCount, int duplicateLines];
 
 /**
 * Classifies the duplication inside a project according to the SIG methodology. 
 * @param project project location
 * @return SIG rating and duplication ratio
 */
-public tuple[SIG_INDEX rating, real percentage] getSigDuplication(loc project) {
-	result = getDupRatioProject(getProjFiles(project));
-	return <classifyDuplication(result.ratio), result.ratio>;
+public tuple[SIG_INDEX rating, DuplicateResult result] getSigDuplication(loc project) {
+	result = getDupRatio(getProjFiles(project));
+	return <classifyDuplication(result.ratio), result>;
 }
 
 /**
@@ -63,7 +64,7 @@ public SIG_INDEX classifyDuplication(real percentage){
  * The end result is the Number of Duplicate Lines divided by the Total Amount of Lines.
  */
 
-public tuple[real ratio, int lineCount, int duplicateLines] getDupRatio(list[loc] projFiles) 
+public DuplicateResult getDupRatio(list[loc] projFiles) 
 {
 	// window size
 	int CHUNK_SIZE = 6;
