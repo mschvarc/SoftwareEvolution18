@@ -7,14 +7,14 @@ import lang::java::m3::Core;
 import lang::java::jdt::m3::Core;
 import lang::java::jdt::m3::AST;
 
-public void testUnitSizeSingleMethod() {
+public test bool testUnitSizeSingleMethod() {
 	loc thisProj = |project://test|;
 	
 	M3 thisModel = createM3FromEclipseProject(thisProj);
 	
 	set[loc] theseMethods = methods(thisModel);
 	
-	num expSize = 5;
+	num expSize = 14;
 	num unitSize;
 	
 	for (thisMethod <- theseMethods) {
@@ -28,8 +28,10 @@ public void testUnitSizeSingleMethod() {
 		print(unitSize);
 		print(", Match = ");
 		println(expSize == unitSize ? "TRUE" : "FALSE");
-		
+		if(expSize != unitSize){return false;}
 	}
+	
+	return true; //all assertions passed
 }
 
 public test bool testUnitSizeSingleProject() {
@@ -37,7 +39,7 @@ public test bool testUnitSizeSingleProject() {
 	
 	M3 thisModel = createM3FromEclipseProject(thisProj);
 		
-	num expSize = 5;
+	num expSize = 14;
 	real projAvgSize = calculateAverageUnitSizePerProject(
 							calculateUnitSizeForProject(thisModel));
 		

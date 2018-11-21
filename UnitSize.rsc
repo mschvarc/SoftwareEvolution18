@@ -16,20 +16,23 @@ import analysis::m3::AST;
 
 import SigRating;
 
-public void USrun() {
-	model = createM3FromEclipseProject(|project://smallsql0.21_src|);
-	
-	real avg = 0.0;
-
-	print("Avg Unit Size: ");
-	avg = calculateAverageUnitSizePerProject(calculateUnitSizeForProject(model));
-	println(avg);
-	
-	print("SIG Rating: ");
-	println(calculateSIGRatingForUnitSize(avg));
+/**
+* Calculates unit size for a project according to the SIG methodology.
+* @param location
+* @return rating and average unit size
+*/
+public tuple[SIG_INDEX rating, real avgsize] calculateSigRatingUnitSizeAll(loc location){
+	result = calculateAverageUnitSizePerProject(
+				calculateUnitSizeForProject(
+					createM3FromEclipseProject(location)));
+	return <calculateSIGRatingForUnitSize(result), result>;
 }
 
-
+/**
+* Calculates unit size for a project according to the SIG methodology.
+* @param location
+* @return SIG rating
+*/
 public SIG_INDEX calculateUnitSizeSIGRatingForProject(loc location){
 	return calculateSIGRatingForUnitSize(
 		calculateAverageUnitSizePerProject(
@@ -38,6 +41,9 @@ public SIG_INDEX calculateUnitSizeSIGRatingForProject(loc location){
 }
 
 
+/**
+* Classifies average LOC per unit to a SIG rating
+*/
 public SIG_INDEX calculateSIGRatingForUnitSize(real avgLOC){
 //TODO: literature study for ratings
 	if(avgLOC < 15){
@@ -53,6 +59,9 @@ public SIG_INDEX calculateSIGRatingForUnitSize(real avgLOC){
 	}
 }
 
+/**
+* Calculates average unit size for the project
+*/
 public real calculateAverageUnitSizePerProject(map[loc, int] unitSizes){
 	int totalLOC = 0;
 	int methodCount = size(unitSizes);
@@ -60,12 +69,13 @@ public real calculateAverageUnitSizePerProject(map[loc, int] unitSizes){
 	for(<k,v> <- toRel(unitSizes)) {
 		totalLOC += v;
 	}
-	
-	println("methods: <methodCount>, total LOC: <totalLOC>, avg size: <totalLOC * 1.0 / methodCount>");
-	
+		
 	return totalLOC * 1.0 / methodCount;
 }
 
+/**
+* Calculates unit size for a given M3 model
+*/
 public map[loc, int] calculateUnitSizeForProject(M3 model) {
 	set[loc] myMethods = methods(model);
 	map[loc, int] resultMethodLoc = ();
@@ -76,7 +86,9 @@ public map[loc, int] calculateUnitSizeForProject(M3 model) {
 	return resultMethodLoc;
 }
 
-
+/**
+* Calculates unit size for one file or method
+*/
 public int calculateUnitSize(loc methodLoc){
 	list[str] rawLines = readFileLines(methodLoc);
 	int lineCount = size(stripEmptyLineAndComments(rawLines));	
