@@ -12,6 +12,11 @@ The volume metric is by far the simplest of the analyzed four; We simply go over
 ## Unit Size
 Units are "the smallest piece of code that can be executed and tested individually" (Heitlager). For JAVA, these units are functions. This makes our life very easy, since RASCAL has a builtin method (`MR.methods()`) that returns the strings encompassing all of the functions in a project. We simply call this function over the given project, parse all of the chunks of code given to us by this function, strip the chunk of all empty and comment lines, including docblocks at the top of the function, and count whatever is left. We average this result over all of the methods in the project, and end up with the Average Unit Size in the project.
 
+For the resulting SIG rating, we used the model proposed in [1] to classify method length. The maximum maintainable size in [1] is stated to be 200 SLOC, so we rank 200 as the maximum SLOC for `-` rating and extrapolate the scale to `<10 SLOC` for `++` rating. 
+
+
+[1] Code Complete: A Practical Handbook of Software Construction, Second Edition 2nd Edition
+
 ### Results
 
 |Project| Unit Size | Rating |
