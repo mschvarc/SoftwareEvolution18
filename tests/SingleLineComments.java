@@ -11,4 +11,5 @@
 x
 //y
 z
-w
+w //still code, do not print this right side
+str a = "quotes"; //this should not be in results

@@ -22,25 +22,25 @@ import String;
 public test bool testTwoDuplicateFiles50percent(){
 	list[loc] locs = [|project://test/src/tests/File1.java|,|project://test/src/tests/File2.java|];
 	result = getDupRatio(locs);
-	return result.lineCount == 24 && result.duplicateLines == 7;
+	return result.lineCount == 24 && result.duplicateLines == 7*2;
 }
 
 public test bool testDuplicatesSameFileTwice(){
-	list[loc] locs = [|project://test/src/tests/File1.java|,|project://test/src/tests/File1.java|];
+	list[loc] locs = [|project://test/src/tests/File1.java|,|project://test/src/tests/File1_Copy.java|];
 	result = getDupRatio(locs);
-	return result.lineCount == 24 && result.duplicateLines == 12;
+	return result.lineCount == 24 && result.duplicateLines == 24;
 }
 
 public test bool testDuplicatesSameFileOnlyWithX(){
 	list[loc] locs = [|project://test/src/tests/File4.java|];
 	result = getDupRatio(locs);
-	return result.lineCount == 13 && result.duplicateLines == 6;
+	return result.lineCount == 13 && result.duplicateLines == 6*2;
 }
 
 public test bool testDuplicatesSameFileOnlyDuplciatedBlock(){
 	list[loc] locs = [|project://test/src/tests/File5.java|];
 	result = getDupRatio(locs);
-	return result.lineCount == 12 && result.duplicateLines == 6;
+	return result.lineCount == 12 && result.duplicateLines == 12;
 }
 
 public test bool testNoDuplicateFiles(){

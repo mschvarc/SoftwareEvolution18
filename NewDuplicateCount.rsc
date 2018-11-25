@@ -13,6 +13,7 @@ import lang::java::jdt::m3::Core;
 import lang::java::m3::Core;
 import util::Math;
 import util::Resources;
+import Map;
 
 import SigRating;
 
@@ -72,57 +73,75 @@ public DuplicateResult getDupRatio(list[loc] projFiles)
 	// set up some counters and keep-track-of-ers
 	int dupLOCCount = 0;
 	int totalLOC = 0;
-	bool lastChunkWasDup = false;
 	
-	// this set will keep track of what blocks of code we have and haven't encountered
-	set[str] encChunks = {};
-	
-	// variable initiator
-	list[str] currLines = [];
-	str currChunk = "";
+	map[str, set[tuple[loc location, int startIndex]]] chunks = ();
+	map[loc, int] fileToLocCount = ();
 	
 	// loop over all of the files in the project
 	for (currFile <- projFiles) 
 	{
 		// get the LOC from this file (no Whitespace or Comments)
-		// @TODO implement funtion getLOC()
-		currLines = stripEmptyLineAndComments(readFileLines(currFile));
+		list[str] currLines = stripEmptyLineAndComments(readFileLines(currFile));
 		
 		// loop over all of the chunks in this file
 		for (int index <- [0..(size(currLines)-CHUNK_SIZE+1)])
 		{
 			// get each individual chunk as a concatenated string
-			currChunk = getChunk(currLines[index..index+CHUNK_SIZE]);
+			str currChunk = getChunk(currLines[index..index + CHUNK_SIZE]);
 			
-			// check whether we have already encountered this chunk
-			if (currChunk in encChunks)
-			{
-				// if the last chunk was a duplicate
-				if (lastChunkWasDup)
-				{
-					// we don't have to count all of the lines in the chunk as a duplicate, we only mark the newly encountered line
-					dupLOCCount += 1;
-				}
-				else 
-				{
-					// if the last chunk wasn't a duplicate, mark the whole chunk as duplicate lines and set the lastchunkwasdup toggle to true
-					dupLOCCount += CHUNK_SIZE;
-					lastChunkWasDup = true;
-				}
+			if( currChunk in chunks) {
+				//append
+				chunks[currChunk] += <currFile, index>;
+			} else {
+				//init entry
+				chunks[currChunk] = {<currFile, index>};
 			}
-			else
-			{
-				// we have encountered an unknown chunk, include the new chunk in the encountered set and mark the last encountered chunk to not be a duplicate
-				encChunks += currChunk;
-				lastChunkWasDup = false;
-			}
+			
+			
 		}
-		// we have parsed a complete file, reset the last chunk boolean and add the lines in this file to the total Lines Of Code counter
-		lastChunkWasDup = false;
+		fileToLocCount[currFile] = size(currLines);
 		totalLOC += size(currLines);
 	}
+	
+	//	map[str, set[tuple[loc location, int startIndex]]] chunks = ();
+	map[loc, list[bool]] fileLineBitIndex = ();
+    
+    //go over the results, ignore entries with only 1 item
+	for(stringChunk <- chunks) {
+	
+		if(size(chunks[stringChunk]) <= 1){
+			continue;
+		} 
+		
+		for(<loc location, int startIndex> <- chunks[stringChunk]) {
+			
+			//init location file 
+			if(location notin fileLineBitIndex) {
+				list[bool] bitIndex = [];
+				for(int i <- [0.. (fileToLocCount[location])]) {
+					bitIndex += false;
+				}
+				fileLineBitIndex[location] = bitIndex;
+			}
+			
+			for(int index <- [startIndex .. (startIndex + CHUNK_SIZE)]){
+				fileLineBitIndex[location][index] = true;
+				//println("<stringChunk> setting <location> @ <index> to true");
+			}
+		}
+	}
+	
+	//count actual duplicate LOC
+	for(loc key <- fileLineBitIndex) {
+		for(bit <- fileLineBitIndex[key]) {
+			if(bit) {
+				dupLOCCount += 1;
+			}
+		}
+	}	
+	
 	// testing purposes: output the found lines of code and other stats
-	//println("Total Lines of Code: <totalLOC>, number of duplicate lines: <dupLOCCount>");
+	println("Total Lines of Code: <totalLOC>, number of duplicate lines: <dupLOCCount>");
 	
 	// we have parsed all of the LOC in all of the files, return the calculated result
 	return <dupLOCCount * 1.0 / totalLOC, totalLOC, dupLOCCount >;

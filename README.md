@@ -43,9 +43,8 @@ Since the Duplicate chunks can also be bigger than 6 lines, we devised a sort of
 
 | Project | Duplicates | Total LOC | Percentage | Rating |
 | --- | --- | --- | --- | --- |
-| SmallSQL | 2274 | 24050 | 9.45% | `0` |
-| HSQL| 23236 | 172119 | 13.5% | `--` |
-
+| SmallSQL | 2560 | 24015 | 10.66% | `-` |
+| HSQL| 34289 | 171470 | 19.99% | `-` |
 
 
 ## Cyclomatic Complexity

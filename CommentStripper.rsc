@@ -29,31 +29,37 @@ public list[str] stripEmptyLineAndComments(list[str] lines){
 	
 	for(rawLine <- lines) {
 		str trimmedLine = trim(rawLine);
-		trimmedLine = stripEmbeddedQuotes(trimmedLine);
-		trimmedLine = stripEmbeddedComments(trimmedLine);
-		if(trimmedLine == ""){
+		str searchLine = stripEmbeddedComments(trimmedLine);
+		
+		if(searchLine == ""){
 			continue;
 		}
 		//NOTE: if a single line comment contains /* or */ , it must be ignored per Java grammar
 		if(startsWith(trimmedLine, "//")){
 			continue;
 		}
+		//remove comment side : code // comment --> code
+		if(/<left:.*>\/\/.*/ :=searchLine){
+			searchLine = left;
+		}
+		
 		//parse multiline comments last
-		if(contains(trimmedLine, "/*")){
+		if(contains(searchLine, "/*")){
 			inComment = true;
 		}
-		if(contains(trimmedLine, "*/") && inComment){
+		if(contains(searchLine, "*/") && inComment){
 			inComment = false;
 			//remove everything to the left of */
-			if(/\*\/<right:.*>/ := trimmedLine){
-				trimmedLine = right;
+			if(/\*\/<right:.*>/ := searchLine){
+				searchLine = right;
 			}
 		}
 		if(inComment){
 			continue;
 		}
-		if(trimmedLine != "") {
-			result += trimmedLine;
+		if(searchLine != "") {
+			//add modified line to result, do 1 more trim
+			result += trim(searchLine);
 		}
 	}
 	return result;
