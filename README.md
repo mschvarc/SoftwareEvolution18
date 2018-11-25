@@ -1,6 +1,12 @@
 # SoftwareEvolution18
 ## Martin Schvarcbacher and Jelle Manders
 
+## Changes since grading session:
+
+1. Modified the way we compute and rank unit size to incorporate relative percentages, not just the average. This enables us to penalize for codebases with unmaintaiably long methods. 
+
+2. Changed the duplicate detection algorithm. With a window size of 6, the same file copy/pasted twice results in 100% not 50% duplication. Re-ran the tool. 
+
 ## Volume
 The volume metric is by far the simplest of the analyzed four; We simply go over all of the Java Files, strip them of all comment and blank lines, and count whatever is left. This is done by asking RASCAL for all of the JAVA files in the project, parsing each of them with our Comment and Whiteline stripper, and counting the amount of lines left.
 
@@ -12,17 +18,16 @@ The volume metric is by far the simplest of the analyzed four; We simply go over
 ## Unit Size
 Units are "the smallest piece of code that can be executed and tested individually" (Heitlager). For JAVA, these units are functions. This makes our life very easy, since RASCAL has a builtin method (`MR.methods()`) that returns the strings encompassing all of the functions in a project. We simply call this function over the given project, parse all of the chunks of code given to us by this function, strip the chunk of all empty and comment lines, including docblocks at the top of the function, and count whatever is left. We average this result over all of the methods in the project, and end up with the Average Unit Size in the project.
 
-For the resulting SIG rating, we used the model proposed in [1] to classify method length. The maximum maintainable size in [1] is stated to be 200 SLOC, so we rank 200 as the maximum SLOC for `-` rating and extrapolate the scale to `<10 SLOC` for `++` rating. 
-
+For the resulting SIG rating, we used the model proposed in [1] to classify method length. The maximum maintainable size in [1] is stated to be 100 to 200 SLOC. We then count the number of methods falling into the categories: `20<SLOC`, `20<=SLOC<50`, `50<=SLOC<100`, `SLOC>=100`. These categories are then converted to percentages and compared to a table similar to the one of complexity as described in (Heitlager). From this we derive the final SIG rating.  
 
 [1] Code Complete: A Practical Handbook of Software Construction, Second Edition 2nd Edition
 
 ### Results
 
-|Project| Unit Size | Rating |
-| ---| ---| ---|
-|SmallSQL| 8.8 | `++` | 
-|HSQL| 13.9 | `++` |
+| Project | Low Risk | Medium Risk | High Risk | Very High Risk | Rating |
+| --- |  --- |  --- |  --- |  --- |  --- | 
+| SmallSQL | 89.7% | 8.1% | 1.7% | 0.46% | `-` |
+| HSQLDB | 83.0% | 12.2% | 3.4% | 1.4% | `-` |
 
 ## Duplicate Lines of Code (LOC)
 Duplicate lines of code are defined as chunks of at least six lines, if we encounter six lines of code and encounter these exact same lines (excluding comments and whitelines) later, the second (and third, fourth, and so on) will be marked as duplicate. Note that the original will not be marked as a duplicate, hence the ratio of duplicate code will never quite reach 1.

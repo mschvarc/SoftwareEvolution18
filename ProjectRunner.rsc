@@ -26,10 +26,10 @@ public void runAll(loc location){
 	printNewLine();
 	cyclomatic = calculateSIGCyclomaticComplexityMetricsProject(location);
 	println("Cyclomatic complexity:\nrating: <cyclomatic.rating>");
-	printCyclomaticRisk("low", cyclomatic.bins.lowRiskLoc, cyclomatic.bins.totalLoc);
-	printCyclomaticRisk("medium", cyclomatic.bins.moderateRiskLoc, cyclomatic.bins.totalLoc);
-	printCyclomaticRisk("high", cyclomatic.bins.highRiskLoc, cyclomatic.bins.totalLoc);
-	printCyclomaticRisk("very high", cyclomatic.bins.veryHighRiskLoc, cyclomatic.bins.totalLoc);
+	printBinnedRisk("low", cyclomatic.bins.lowRiskLoc, cyclomatic.bins.totalLoc);
+	printBinnedRisk("medium", cyclomatic.bins.moderateRiskLoc, cyclomatic.bins.totalLoc);
+	printBinnedRisk("high", cyclomatic.bins.highRiskLoc, cyclomatic.bins.totalLoc);
+	printBinnedRisk("very high", cyclomatic.bins.veryHighRiskLoc, cyclomatic.bins.totalLoc);
 	
 	printNewLine();
 	duplication = getSigDuplication(location);
@@ -39,10 +39,10 @@ public void runAll(loc location){
 	printNewLine();
 	unit = calculateSigRatingUnitSizeAll(location);
 	println("Unit size: rating: <unit.rating>");
-	printCyclomaticRisk("low", unit.bins.low, unit.bins.total);
-	printCyclomaticRisk("medium", unit.bins.moderate, unit.bins.total);
-	printCyclomaticRisk("high", unit.bins.high, unit.bins.total);
-	printCyclomaticRisk("very high", unit.bins.veryHigh, unit.bins.total);
+	printBinnedRisk("low", unit.bins.low, unit.bins.total);
+	printBinnedRisk("medium", unit.bins.moderate, unit.bins.total);
+	printBinnedRisk("high", unit.bins.high, unit.bins.total);
+	printBinnedRisk("very high", unit.bins.veryHigh, unit.bins.total);
 	
 	printNewLine();
 	volume = calculateSIGRatingForProjectVolumeCount(location);
@@ -66,7 +66,7 @@ public void runAll(loc location){
 		
 }
 
-private void printCyclomaticRisk(str riskType, int relative, int total){
+private void printBinnedRisk(str riskType, int relative, int total){
 	real percentage = relative * 1.0 / total * 100;
 	println("<riskType> risk: <relative> | <percentage>%");
 }
