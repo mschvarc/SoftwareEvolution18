@@ -12,6 +12,7 @@ import IO;
 import NewDuplicateCount;
 import SigRating;
 import Maintainability;
+import AssertDensity;
 
 public void runSmallSql(){
 	runAll(|project://smallsql0.21_src|);
@@ -45,6 +46,10 @@ public void runAll(loc location){
 	printBinnedRisk("very high", unit.bins.veryHigh, unit.bins.total);
 	
 	printNewLine();
+	assertDensity = calcAssertDensitySIGRating(location);
+	println("Assert Density SIG: <assertDensity>");
+	
+	printNewLine();
 	volume = calculateSIGRatingForProjectVolumeCount(location);
 	println("Volume count: rating: <volume.rating>, total volume: <volume.volume>");
 	
@@ -63,6 +68,7 @@ public void runAll(loc location){
 	printNewLine();
 	maintainability = calculateMaintainability(analysability, changeability, testability);
 	println("Maintainability: <maintainability>");
+	
 		
 }
 
