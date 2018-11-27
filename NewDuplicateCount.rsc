@@ -141,7 +141,7 @@ public DuplicateResult getDupRatio(list[loc] projFiles)
 	}	
 	
 	// testing purposes: output the found lines of code and other stats
-	println("Total Lines of Code: <totalLOC>, number of duplicate lines: <dupLOCCount>");
+	//println("Total Lines of Code: <totalLOC>, number of duplicate lines: <dupLOCCount>");
 	
 	// we have parsed all of the LOC in all of the files, return the calculated result
 	return <dupLOCCount * 1.0 / totalLOC, totalLOC, dupLOCCount >;
