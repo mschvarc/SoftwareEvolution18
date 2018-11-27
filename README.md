@@ -67,9 +67,9 @@ From this we derive the final SIG rating.
 | HSQLDB | 65% | 13% | 11.6% | 10% | `--` |
 
 
-## Test Quality
+## Unit Testing
 
-We look at each **test** method in the project source and investigate the test quality. The test quaility metric as proposed by SIG is to either look at the unit test coverage percentage or to look at the number of assert statements. Due to the fact that neither SmallSQL or HSQLDB use Maven for their tests, it would be difficult to use standardized Maven plugins (e.g.: JaCoCo) to get the resulting code coverage. We picked the metric using the number of assert statements per method. We count the number of `assert*`, `expect\.*` and `@Test(expected = .*\.class)` code statements in the method's source code. From this we classify test methods as either having zero assert (or related) statements or having at least one. For the ones having at least one assert statement, we count their number of occurences per the test. 
+We look at each **test** method under the `*tests` directory in the project source and investigate the test quality. The test quaility metric as proposed by SIG is to either look at the unit test coverage percentage or to look at the number of assert statements. Due to the fact that neither SmallSQL or HSQLDB use Maven for their tests, it would be difficult to use standardized Maven plugins (e.g.: JaCoCo) to get the resulting code coverage. We picked the second language independent metric using the number of assert statements per test method. We count the number of `assert*`, `expect\.*` and `@Test(expected = .*\.class)` code statements in the method's source code. From this we classify test methods as either having zero assert (or related) statements or having at least one. For the ones having at least one assert statement, we count their number of occurences per the test to calculate the density. 
 
 For `--` rating there are more than 10% no assert test cases, for `-` rating this must be between 5% and 10%. For ratings above `0` we classify according to assertion density (average of assert statements per single test method). 
 
@@ -77,8 +77,8 @@ For `--` rating there are more than 10% no assert test cases, for `-` rating thi
 
 | Project | No assert methods | Assert methods | Assert density | Rating|
 | ------- | ----------------- | -------------- | -------------- | ----- |
-| SmallSQL | 47 | 162 | 5.5 | `-` |
-| HSQLDB | 120 | 204 | 5.3 | `-` |
+| SmallSQL | 47 | 162 | 5.5 | `--` |
+| HSQLDB | 120 | 204 | 5.3 | `--` |
 
 ## Aggregated Metrics
 For each atomic metric described above we can derive aggregated metrics using at least two or more atomic metrics. 
