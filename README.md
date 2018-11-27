@@ -34,6 +34,12 @@ For the resulting SIG rating, we used the model proposed in [1] to classify meth
 | HSQLDB | 83.0% | 12.2% | 3.4% | 1.4% | `-` |
 
 ## Duplicate Lines of Code (LOC)
+
+### Version 2, changed since grading (NEW):
+
+We no longer consider a single block of lines to be unique, if there are two files with the same content in a project, the duplication ration will be 100%. We now go through all of the files and generate 6 line long chunks and store them in a set with their file location and line number range. On the second pass we create a boolean index for each file and line. If a given chunk is contained in the set more than once, we iterate over all of the files containing this chunk and set the boolean index for the file to `true` to mark a duplicate. Finally we go through the file boolean index to count the number of duplicated lines and lines in total and return this as the result. 
+
+### Version 1 from first grading (OBSOLETE):
 Duplicate lines of code are defined as chunks of at least six lines, if we encounter six lines of code and encounter these exact same lines (excluding comments and whitelines) later, the second (and third, fourth, and so on) will be marked as duplicate. Note that the original will not be marked as a duplicate, hence the ratio of duplicate code will never quite reach 1.
 Since the Duplicate chunks can also be bigger than 6 lines, we devised a sort of sliding window approach. The algorrithm works as follows:
 * All of the file locations in the current project are loaded into memory.
@@ -43,7 +49,9 @@ Since the Duplicate chunks can also be bigger than 6 lines, we devised a sort of
 * If the last chunk that we checked already was a duplicate chunk, this means we haven't found a completely new duplicate chunk. We just found a duplicate chunk that is more than 6 lines long. Instead of marking all of the code as duplicate, we only add 1 LOC to the duplicate counter.
 * After parsing all of the files like this we have counted how many LOC we encountered, and how many of these are encountered more than once. This gives us all the necessary information to calculate the Duplication Rate.
 
-### Results
+
+
+### Results (version 2)
 
 | Project | Duplicates | Total LOC | Percentage | Rating |
 | --- | --- | --- | --- | --- |
