@@ -7,6 +7,8 @@
 
 2. Changed the duplicate detection algorithm. With a window size of 6, the same file copy/pasted twice results in 100% not 50% duplication. Re-ran the tool. 
 
+3. Added extra metric outside the required ones: test quality (see below). 
+
 ## Volume
 The volume metric is by far the simplest of the analyzed four; We simply go over all of the Java Files, strip them of all comment and blank lines, and count whatever is left. This is done by asking RASCAL for all of the JAVA files in the project, parsing each of them with our Comment and Whiteline stripper, and counting the amount of lines left.
 
@@ -16,9 +18,9 @@ The volume metric is by far the simplest of the analyzed four; We simply go over
 |HSQL| 172119 | `+` |
 
 ## Unit Size
-Units are "the smallest piece of code that can be executed and tested individually" (Heitlager). For JAVA, these units are functions. This makes our life very easy, since RASCAL has a builtin method (`MR.methods()`) that returns the strings encompassing all of the functions in a project. We simply call this function over the given project, parse all of the chunks of code given to us by this function, strip the chunk of all empty and comment lines, including docblocks at the top of the function, and count whatever is left. We average this result over all of the methods in the project, and end up with the Average Unit Size in the project.
+Units are "the smallest piece of code that can be executed and tested individually" (Heitlager). For JAVA, these units are functions. This makes our life very easy, since RASCAL has a builtin method (`MR.methods()`) that returns the strings encompassing all of the functions in a project. We simply call this function over the given project, parse all of the chunks of code given to us by this function, strip the chunk of all empty and comment lines, including docblocks at the top of the function, and count whatever is left. We classify each function into 4 distinct bins according to method SLOC.
 
-For the resulting SIG rating, we used the model proposed in [1] to classify method length. The maximum maintainable size in [1] is stated to be 100 to 200 SLOC. We then count the number of methods falling into the categories: `20<SLOC`, `20<=SLOC<50`, `50<=SLOC<100`, `SLOC>=100`. These categories are then converted to percentages and compared to a table similar to the one of complexity as described in (Heitlager). From this we derive the final SIG rating.  
+For the resulting SIG rating, we used the model proposed in [1] to classify method length. The maximum maintainable size in [1] is stated to be 100 to 200 SLOC. We then count the number of methods falling into the four categories: `20<SLOC`, `20<=SLOC<50`, `50<=SLOC<100`, `SLOC>=100`. These categories are then converted to percentages and compared to a table similar to the one of complexity as described in (Heitlager). From this we derive the final SIG rating for unit size.  
 
 [1] Code Complete: A Practical Handbook of Software Construction, Second Edition 2nd Edition
 
@@ -61,6 +63,17 @@ From this we derive the final SIG rating.
 | --- |  --- |  --- |  --- |  --- |  --- | 
 | SmallSQL | 74% | 7% | 12% | 6% | `--` |
 | HSQLDB | 65% | 13% | 11.6% | 10% | `--` |
+
+
+## Test Quality
+
+We look at each **test** method in the project source and investigate the test quality. The test quaility metric as proposed by SIG is to either look at the unit test coverage percentage or to look at the number of assert statements. Due to the fact that neither SmallSQL or HSQLDB use Maven for their tests, it would be difficult to use standardized Maven plugins (e.g.: JaCoCo) to get the resulting code coverage. We picked the metric using the number of assert statements per method. We count the number of `assert*`, `@Expect` and `@Test(expected = .*\.class)` code statements in the method's source code. From this we classify test methods as either having zero assert (or related) statements or having at least one. For the ones having at least one assert statement, we count their number of occurences per the test. 
+
+For `--` rating there are more than 10% no assert test cases, for `-` rating this must be between 5% and 10%. For ratings above `0` we classify according to assertion density (average of assert statements per single test method). 
+
+### Results
+
+TODO
 
 
 ## Aggregated Metrics
