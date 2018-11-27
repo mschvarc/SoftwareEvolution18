@@ -7,7 +7,7 @@
 
 2. Changed the duplicate detection algorithm. With a window size of 6, the same file copy/pasted twice results in 100% not 50% duplication. Re-ran the tool. 
 
-3. Added extra metric outside the required ones: test quality (see below). 
+3. Added extra metric outside the required ones: test quality (see below) and the ISO stability metric. We incorporated test quality into the other derived ratings.  
 
 4. Added pretty printing of SIG ratings to console (`PLUS_PLUS()` is now printed as `++`)
 
@@ -89,23 +89,29 @@ The SIG ratings can be converted to ISO 9126 maintainability ratings by taking t
 
 ### Results
 
+**Key:** Metric: SIG rating without unit testing / SIG rating with unit testing
+
 #### SmallSQL
 
-Analysability: `+`
+Analysability: `+` / `-`
 
-Changeability: `-`
+Changeability: `-` / `--`
 
-Testability: `0`
+Testability: `0` / `--`
 
-Maintainability: `0`
+Stability: `NA` / `--`
+
+Maintainability: `0` / `--`
 
 
 #### HSQL
 
-Analysability: `0`
+Analysability: `0` / `-`
 
-Changeability: `--`
+Changeability: `--` / `--`
 
-Testability: `0`
+Testability: `0` / `--`
 
-Maintainability: `-`
+Stability: `NA` / `--`
+
+Maintainability: `-` / `--`
