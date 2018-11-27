@@ -38,7 +38,7 @@ import SigRating;
 public test bool testTraverseMethodNoBranching(){	
 	statements = \break();
 	methodBlock =  \block([statements]);
-	result = traverseMethodImpl(|project://test/src/tests/File1.java|,methodBlock);
+	result = traverseMethodImpl(|project://series1/src/tests/File1.java|,methodBlock);
 	return result.linesOfCode == 12 && result.complexity == 1;
 }
 
@@ -47,14 +47,14 @@ public test  bool testTraverseMethodSingleIf(){
 	statements = \if(\number("1"),\break());
 	//vars1 =  \method(wildcard(), "testMethod", [\import("test")], [\number("123")], \block([inner]));
 	methodBlock =  \block([statements]);
-	result = traverseMethodImpl(|project://test/src/tests/File1.java|,methodBlock);
+	result = traverseMethodImpl(|project://series1/src/tests/File1.java|,methodBlock);
 	return result.linesOfCode == 12 && result.complexity == 2;
 }
 
 public test bool testTraverseMethodNestedIf(){	
 	statements = \if(\number("1"),\if(\number("2"),\break(),\break()));
 	methodBlock =  \block([statements]);
-	result = traverseMethodImpl(|project://test/src/tests/File1.java|,methodBlock);
+	result = traverseMethodImpl(|project://series1/src/tests/File1.java|,methodBlock);
 	return result.linesOfCode == 12 && result.complexity == 3;
 }
 

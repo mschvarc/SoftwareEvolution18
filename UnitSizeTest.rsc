@@ -8,7 +8,7 @@ import lang::java::jdt::m3::Core;
 import lang::java::jdt::m3::AST;
 
 public test bool testUnitSizeSingleMethod() {
-	loc thisProj = |project://test|;
+	loc thisProj = |project://series1/|;
 	
 	M3 thisModel = createM3FromEclipseProject(thisProj);
 	
@@ -35,13 +35,13 @@ public test bool testUnitSizeSingleMethod() {
 }
 
 public test bool testUnitSizeSingleProject() {
-	loc thisProj = |project://test|;
+	loc thisProj = |project://series1/|;
 	
 	M3 thisModel = createM3FromEclipseProject(thisProj);
 		
-	num expSize = 14;
-	real projAvgSize = calculateAverageUnitSizePerProject(
-							calculateUnitSizeForProject(thisModel));
+	num expSize = 2;
+	int projAvgSize = calculateAverageUnitSizePerProject(
+							calculateUnitSizeForProject(thisModel)).total;
 		
 	print("Testing Project: ");
 	println(thisProj);

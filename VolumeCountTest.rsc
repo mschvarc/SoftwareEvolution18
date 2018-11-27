@@ -6,8 +6,8 @@ import SigRating;
 
 
 public test bool testVolumeSubdirectory() {
-	result = calculateVolumeCountForProject(|project://test/src/tests/|);
-	return result == 119;
+	result = calculateVolumeCountForProject(|project://series1/src/tests/|);
+	return result == 132;
 }
 
 
