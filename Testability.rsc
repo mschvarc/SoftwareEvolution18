@@ -10,11 +10,12 @@ import SigRating;
 * @param unit 
 * @return testability analysability index
 */
-public SIG_INDEX calculateTestability(SIG_INDEX cyclomatic, SIG_INDEX unit){
+public SIG_INDEX calculateTestability(SIG_INDEX cyclomatic, SIG_INDEX unitSize, SIG_INDEX unitTesting){
 
 	cyclomaticIndex = sigIndexToInt(cyclomatic);
-	unitIndex = sigIndexToInt(unit);
+	unitSizeIndex = sigIndexToInt(unitSize);
+	unitTestingIndex = sigIndexToInt(unitTesting);
 	
-	int resultingIndex = (cyclomaticIndex + unitIndex) / 2;
+	int resultingIndex = (cyclomaticIndex + unitIndex + unitTestingIndex) / 3;
 	return intToSigIndex(resultingIndex);
 }

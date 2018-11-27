@@ -20,20 +20,17 @@ alias AssertDensityReport = tuple[int uselessTestCount,
 									int usefulTestCount, 
 									real usefulAssertDensity];
 									
-public AssertDensityReport testThis() { return getAssertDensityForProject(|project://smallsql0.21_src|); }
 
-public SIG_INDEX testThisSIG() { return calcAssertDensitySIGRating(|project://smallsql0.21_src|); }
 
-public SIG_INDEX calcAssertDensitySIGRating(loc proj) {
+public tuple[SIG_INDEX rating, AssertDensityReport result]  calcAssertDensitySIGRating(loc proj) {
 	AssertDensityReport result = getAssertDensityForProject(proj);
 	real uselessRatio = result.uselessTestCount * 1.0 / (result.uselessTestCount + result.usefulTestCount);
 	
-	if (uselessRatio > 0.1) { return MINUS_MINUS(); }
-	else if (uselessRatio > 0.05) {return MINUS(); }
-	else if (result.usefulAssertDensity < 3) { return ZERO(); }
-	else if (result.usefulAssertDensity < 7) { return PLUS(); }
-	
-	return PLUS_PLUS();
+	if (uselessRatio > 0.1) { return <MINUS_MINUS(),result>; }
+	else if (uselessRatio > 0.05) {return <MINUS(),result>; }
+	else if (result.usefulAssertDensity < 3) { return <ZERO(),result>; }
+	else if (result.usefulAssertDensity < 7) { return <PLUS(),result>; }
+	return <PLUS_PLUS(),result>;
 }
 
 public AssertDensityReport getAssertDensityForProject(loc proj) {
@@ -96,7 +93,9 @@ public int getNumberOfAssertsForMethod(loc meth) {
 			
 	// count the number of assert calls in the method
 	for (line <- methLines) {
-		if(contains(line, "assert")) { totalAsserts += 1; }
+		if(contains(line, "assert")) { totalAsserts += 1; } //assert*
+		if(/.*expect.*/ := line) {totalAsserts += 1;} //Assert4J expect exception
+		if(/@Test\(.*expected=.*\.class.*\)/ := line) {totalAsserts += 1;} //JUnit @Test with exception
 	}
 	
 	// return the assert number

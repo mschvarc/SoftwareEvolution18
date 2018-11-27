@@ -11,15 +11,16 @@ import SigRating;
 * Calculates analysability score based on input parameters
 * @param volume
 * @param duplication
-* @param unit 
+* @param unitSize
+* @param unitTesting
 * @return resulting analysability index
 */
-public SIG_INDEX calculateAnalysability(SIG_INDEX volume, SIG_INDEX duplication, SIG_INDEX unit){
-
+public SIG_INDEX calculateAnalysability(SIG_INDEX volume, SIG_INDEX duplication, SIG_INDEX unitSize, SIG_INDEX unitTesting){
 	volumeIndex = sigIndexToInt(volume);
 	duplicateIndex = sigIndexToInt(duplication);
-	unitIndex = sigIndexToInt(unit);
+	unitSizeIndex = sigIndexToInt(unit);
+	unitTestingIndex = sigIndex(unit);
 	
-	int resultingIndex = (volumeIndex + duplicateIndex + unitIndex) / 3;
+	int resultingIndex = (volumeIndex + duplicateIndex + unitSizeIndex + unitTestingIndex) / 4;
 	return intToSigIndex(resultingIndex);
 }

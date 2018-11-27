@@ -39,7 +39,7 @@ public list[str] stripEmptyLineAndComments(list[str] lines){
 			continue;
 		}
 		//remove comment side : code // comment --> code
-		if(/<left:.*>\/\/.*/ :=searchLine){
+		if(/<left:.*>\/\/.*/ := searchLine){
 			searchLine = left;
 		}
 		

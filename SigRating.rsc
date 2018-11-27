@@ -35,3 +35,21 @@ public SIG_INDEX intToSigIndex(int index){
 			throw "Unknown type";
 	}
 }	
+
+
+public str formatRating(SIG_INDEX index){
+	switch(index){
+		case PLUS_PLUS():
+			return "++";
+		case PLUS():
+			return "+";
+		case ZERO():
+			return "0";
+		case MINUS():
+			return "-";
+		case MINUS_MINUS():
+			return "--";
+		default:
+			throw "Unknown type";
+	}
+}

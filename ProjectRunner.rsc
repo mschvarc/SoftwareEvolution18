@@ -26,7 +26,7 @@ public void runAll(loc location){
 	
 	printNewLine();
 	cyclomatic = calculateSIGCyclomaticComplexityMetricsProject(location);
-	println("Cyclomatic complexity:\nrating: <cyclomatic.rating>");
+	println("Cyclomatic complexity:\nrating: <formatRating(cyclomatic.rating)>");
 	printBinnedRisk("low", cyclomatic.bins.lowRiskLoc, cyclomatic.bins.totalLoc);
 	printBinnedRisk("medium", cyclomatic.bins.moderateRiskLoc, cyclomatic.bins.totalLoc);
 	printBinnedRisk("high", cyclomatic.bins.highRiskLoc, cyclomatic.bins.totalLoc);
@@ -34,40 +34,48 @@ public void runAll(loc location){
 	
 	printNewLine();
 	duplication = getSigDuplication(location);
-	println("Duplication: rating: <duplication.rating>, lines duplicated: <duplication.result.ratio * 100>%");
+	println("Duplication: rating: <formatRating(duplication.rating)>, lines duplicated: <duplication.result.ratio * 100>%");
 	println("Duplicated lines: <duplication.result.duplicateLines> out of: <duplication.result.lineCount>");
 	
 	printNewLine();
-	unit = calculateSigRatingUnitSizeAll(location);
-	println("Unit size: rating: <unit.rating>");
-	printBinnedRisk("low", unit.bins.low, unit.bins.total);
-	printBinnedRisk("medium", unit.bins.moderate, unit.bins.total);
-	printBinnedRisk("high", unit.bins.high, unit.bins.total);
-	printBinnedRisk("very high", unit.bins.veryHigh, unit.bins.total);
+	unitSize = calculateSigRatingUnitSizeAll(location);
+	println("Unit size: rating: <formatRating(unitSize.rating)>");
+	printBinnedRisk("low", unitSize.bins.low, unitSize.bins.total);
+	printBinnedRisk("medium", unitSize.bins.moderate, unitSize.bins.total);
+	printBinnedRisk("high", unitSize.bins.high, unitSize.bins.total);
+	printBinnedRisk("very high", unitSize.bins.veryHigh, unitSize.bins.total);
 	
 	printNewLine();
-	assertDensity = calcAssertDensitySIGRating(location);
-	println("Assert Density SIG: <assertDensity>");
+	unitTesting = calcAssertDensitySIGRating(location);
+	println("Unit Testing: rating: <formatRating(unitTesting.rating)>");
+	println("Methods without assert statements: <unitTesting.result.uselessTestCount>");
+	println("Methods with assert statements: <unitTesting.result.usefulTestCount>");
+	println("Average assert density: <unitTesting.result.usefulAssertDensity>");
 	
 	printNewLine();
 	volume = calculateSIGRatingForProjectVolumeCount(location);
-	println("Volume count: rating: <volume.rating>, total volume: <volume.volume>");
+	println("Volume count: rating: <formatRating(volume.rating)>, total volume: <volume.volume>");
 	
 	printNewLine();
-	analysability = calculateAnalysability(volume.rating, duplication.rating, unit.rating);
-	println("Analysability: <analysability>");
+	analysability = calculateAnalysability(volume.rating, duplication.rating, unitSize.rating, unitTesting.rating);
+	println("Analysability: <formatRating(analysability)>");
 	
 	printNewLine();
 	changeability = calculateChangeability(cyclomatic.rating, duplication.rating);
-	println("Changeability: <changeability>");
+	println("Changeability: <formatRating(changeability)>");
 	
 	printNewLine();
-	testability = calculateTestability(cyclomatic.rating, unit.rating);
-	println("Testability: <testability>");
+	stability = unitTesting.rating;
+	println("Stability: <formatRating(stability)>");
 	
 	printNewLine();
-	maintainability = calculateMaintainability(analysability, changeability, testability);
-	println("Maintainability: <maintainability>");
+	testability = calculateTestability(cyclomatic.rating, unitSize.rating, unitTesting.rating);
+	println("Testability: <formatRating(testability)>");
+	
+	
+	printNewLine();
+	maintainability = calculateMaintainability(analysability, changeability, testability, stability);
+	println("Maintainability: <formatRating(maintainability)>");
 	
 		
 }
