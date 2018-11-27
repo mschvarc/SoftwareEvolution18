@@ -9,6 +9,8 @@
 
 3. Added extra metric outside the required ones: test quality (see below). 
 
+4. Added pretty printing of SIG ratings to console (`PLUS_PLUS()` is now printed as `++`)
+
 ## Volume
 The volume metric is by far the simplest of the analyzed four; We simply go over all of the Java Files, strip them of all comment and blank lines, and count whatever is left. This is done by asking RASCAL for all of the JAVA files in the project, parsing each of them with our Comment and Whiteline stripper, and counting the amount of lines left.
 
