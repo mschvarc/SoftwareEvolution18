@@ -110,30 +110,79 @@ public void traverseDeclaration(Declaration ast){
 }
 
 
-public void makeSets(Declaration ast){
+public map[node, set[node]] makeSets(Declaration ast){
 	map[node, set[node]] results = ();
 	int nodeSizeThreshold = 6;
 	
 	visit(ast) {
 		case node n : {
-			node cleared = unsetRec(n);
-			if(getNodeCountRec(cleared) > nodeSizeThreshold){
-				if(cleared in results) {
-					results[cleared] += n;
-				}
-				else {
-					results[cleared] = {n};
+			//we need to do highlighting, can't do without SRC
+			if("src" in getKeywordParameters(n) ){
+				node cleared = unsetRec(n);
+				if(getNodeCountRec(cleared) > nodeSizeThreshold){
+					if(cleared in results) {
+						results[cleared] += n;
+					}
+					else {
+						results[cleared] = {n};
+					}
 				}
 			}
 		}
 	}
 	
+	map[node, set[node]] nonDuplicatedResults = ();
 	for(node n <- results){
 		if(size(results[n]) > 1) {
-			println("<getName(n)> ; <size(results[n])> ; <getKeywordParameters(getOneFrom(results[n]))>");
+			//println("<getName(n)> ; <size(results[n])> ; <getKeywordParameters(getOneFrom(results[n]))>");
+			nonDuplicatedResults += (n : results[n]);
 		}
 	}
 	
+	subsume(nonDuplicatedResults);
+	
+	return nonDuplicatedResults;
+}
+
+public map[node, set[node]] subsume(map[node, set[node]] input) {
+	
+	map[node, set[node]] output = input; //TODO: deep clone
+	
+	//TODO: do fixed point iteration
+	//generate pairs
+	for(outer <- input) {
+		for(inner <- input) {
+			if (outer == inner) {
+				continue;
+			}
+			
+			int outerCount = getNodeCountRec(getOneFrom(input[outer]));
+			int innerCount = getNodeCountRec(getOneFrom(input[inner]));
+			
+			//GREATER THAN: bigger set can not be subsumed by smaller set
+			//EQUAL: can't be same size, different equivalence class
+			//LESS THAN: only smaller set can be subsumed by bigger set
+			
+			//if(outerCount >= innerCount) {
+			//	continue;
+			//}
+			
+			//assertions: outer < inner
+			
+			//if inner SUBSET outer:
+			//remove inner from results
+			//SEE: http://tutor.rascal-mpl.org/Rascal/Patterns/Abstract/Descendant/Descendant.html
+			outerPattern = getOneFrom(input[outer]);
+			innerPattern = getOneFrom(input[inner]);
+			
+			if( / outerPattern := innerPattern) {
+				println("found subtree, outer <outerCount>  SS inner: <innerCount>");
+				break; //this outer pattern is deleted, go to next one
+			} 
+		}
+	}
+	
+	return output;
 }
 
 
