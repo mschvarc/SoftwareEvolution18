@@ -25,6 +25,7 @@ import lang::java::m3::Core;
 import lang::java::jdt::m3::Core;
 import lang::java::jdt::m3::AST;
 import analysis::m3::AST;
+import Node;
 
 /*
 
@@ -32,6 +33,11 @@ https://stackoverflow.com/questions/47555798/comparing-ast-nodes
 
 
 */
+
+public void testProject(){
+	parseProject(|project://smallsql0.21_src|);
+	//parseProject(|project://softevo|);
+}
 
 
 
@@ -80,13 +86,66 @@ public void traverseDeclaration(Declaration ast){
  		//case methodSrc:\method(ret, _, parameters, exceptions) => \method(ret, metName, parameters, exceptions)
 	};
 	
-	//ast = unset(ast);
+	 /*visit(ast){
+		case node n:   {
+			println("---------");
+			println("raw: <n>");
+			println("node count: <getNodeCountRec(n)>");
+			println("annotations: <getAnnotations(n)>");
+			println("kw: <getKeywordParameters(n)>");
+		}
+	}*/
+	
+	// ast = unset(ast);
 		
-	println(ast);
+	/* println(ast);
+	println("---------*****-----------");
+	println("---------*****-----------");
+	println(getAnnotations(ast));
+	println(getChildren(ast));
+	println(getName(ast));
+	*/
+	
+	makeSets(ast);
 }
 
-//returns complexity as a number
-public void traverseMethodImpl(loc source, Statement methodImpl) {
+
+public void makeSets(Declaration ast){
+	map[node, set[node]] results = ();
+	int nodeSizeThreshold = 6;
+	
+	visit(ast) {
+		case node n : {
+			node cleared = unsetRec(n);
+			if(getNodeCountRec(cleared) > nodeSizeThreshold){
+				if(cleared in results) {
+					results[cleared] += n;
+				}
+				else {
+					results[cleared] = {n};
+				}
+			}
+		}
+	}
+	
+	for(node n <- results){
+		if(size(results[n]) > 1) {
+			println("<getName(n)> ; <size(results[n])> ; <getKeywordParameters(getOneFrom(results[n]))>");
+		}
+	}
+	
+}
+
+
+public int getNodeCountRec(node input){
+	int count = 0;
+	visit(input) {
+		case node n:  {count += 1;}
+	}
+	return count;
+}
+
+public Statement traverseMethodImpl(loc source, Statement methodImpl) {
 
 	str overrideVarName = "var";
 	str charName = "x";
@@ -103,6 +162,10 @@ public void traverseMethodImpl(loc source, Statement methodImpl) {
 		case \simpleName(_) => \simpleName(charName)
 	}
 	
-	//println(methodImpl);
+	println("---------*****-----------");
+	println(methodImpl);
+	println("---------*****-----------");
+	
+	return methodImpl;
 	
 }
