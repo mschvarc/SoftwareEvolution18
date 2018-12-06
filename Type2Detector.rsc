@@ -57,28 +57,18 @@ public void traverseProject(set[Declaration] ast){
 
 public void traverseDeclaration(Declaration ast){
 
-	/*visit (ast) {
-		case methodSrc:\method(_, name, _, _, Statement impl): {
-				traverseMethodImpl(methodSrc.src, impl);
-			}
-		case methodSrc:\constructor(name, _,_, Statement impl): {
-				traverseMethodImpl(methodSrc.src, impl);
-				//impl.src gives source location range, without the method declaration line
-			}
-		}*/
-		
+	
 	str overrideVarName = "var";
 	str charName = "x";
 	str numVal = "1";
 	Type overrideType = wildcard();
 	str metName = "met";
-		
+	
+	//TODO: generalize: Type 1: no change, type 2: change, type 3: ???
 	ast = visit(ast) {
 		case \variable(_, extraDimensions) => \variable(overrideVarName, extraDimensions)
 		case \variable(_, extraDimensions, init) => \variable(overrideVarName, extraDimensions, init)
-		//case \characterLiteral(_) => \characterLiteral(charName)
 		case \cast(_, e) => \cast(overrideType, e)
-		//case \number(_) => \number(numVal)
 		case \type(_) => \type(overrideType)
 		case \simpleName(_) => \simpleName(charName)
 		//\method(Type \return, str name, list[Declaration] parameters, list[Expression] exceptions, Statement impl)
@@ -112,16 +102,14 @@ public void traverseDeclaration(Declaration ast){
 
 public map[node, set[node]] makeSets(Declaration ast){
 	map[node, set[node]] results = ();
-	int nodeSizeThreshold = 6;
+	int nodeSizeThreshold = 2;
 	
 	visit(ast) {
 		case node n : {
 			//we need to do highlighting, can't do without SRC
 			if("src" in getKeywordParameters(n) ){
-				//println(getName(n));
-				//println(n);
 				node cleared = unsetRec(n);
-				if(getNodeCountRec(cleared) > nodeSizeThreshold){
+				if(getNodeCountRec(cleared) >= nodeSizeThreshold){
 					if(cleared in results) {
 						results[cleared] += n;
 					}
@@ -136,22 +124,33 @@ public map[node, set[node]] makeSets(Declaration ast){
 	map[node, set[node]] nonDuplicatedResults = ();
 	for(node n <- results){
 		if(size(results[n]) > 1) {
-			//println("<getName(n)> ; <size(results[n])> ; <getKeywordParameters(getOneFrom(results[n]))>");
 			nonDuplicatedResults += (n : results[n]);
 		}
 	}
 	
-	subsume(nonDuplicatedResults);
+	nonDuplicatedResults = fixedPointSubsume(nonDuplicatedResults);
 	
 	return nonDuplicatedResults;
 }
 
+public map[node, set[node]] fixedPointSubsume(map[node, set[node]] input) {
+
+	println("subsume original <size(input)>");
+	map[node, set[node]] output = subsume(input);
+	println("subsumed first fixed point iteration: <size(output)>");
+	
+	while(input != output) {
+		input = output;
+		output = subsume(output);
+		println("subsumed fixed point iteration: <size(output)>");
+	}
+	return output;
+}
+
 public map[node, set[node]] subsume(map[node, set[node]] input) {
 	
-	map[node, set[node]] output = input; //TODO: deep clone
+	map[node, set[node]] output = input; 
 	
-	//TODO: do fixed point iteration
-	//generate pairs
 	for(outer <- input) {
 		for(inner <- input) {
 			if (outer == inner) {
@@ -179,7 +178,6 @@ public map[node, set[node]] subsume(map[node, set[node]] input) {
 			if( / outer := inner) {
 				println("found subtree, outer <outerCount>  SS inner: <innerCount>, inspecting");
 				
-				
 				//subsume only if all outer with src match inner with src (same file subsumption for entire class)
 				bool canSubsume = true;
 				for(outerSrc <- input[outer]){
@@ -197,25 +195,28 @@ public map[node, set[node]] subsume(map[node, set[node]] input) {
 				}
 				if(canSubsume) {
 					println("subsumed with SRC match");
+					
+					
 					output = delete(output, outer);
 					
-					/*
+					
 					println("--------");
 					println("--------");
-					println(getOneFrom(input[outer]));
+					println((input[outer]));
 					println("--------");
 					println("LARGER");
 					println("--------");
-					println(getOneFrom(input[inner]));
+					println((input[inner]));
 					println("--------");
 					println("--------");
-					*/
+					
 					
 					
 					break; //this outer pattern is deleted, go to next one
-				} else {
+				} 
+				/* else {
 					println("subsumption failed due to SRC mismatch");
-				}
+				} */
 			} 
 		}
 	}
@@ -225,9 +226,6 @@ public map[node, set[node]] subsume(map[node, set[node]] input) {
 	return output;
 }
 
-/* public map[node, set[node]] fullClassSubsumption(map[node, set[node]] input) {
-	
-} */
 
 
 public int getNodeCountRec(node input){
@@ -238,27 +236,4 @@ public int getNodeCountRec(node input){
 	return count;
 }
 
-/* public Statement traverseMethodImpl(loc source, Statement methodImpl) {
 
-	str overrideVarName = "var";
-	str charName = "x";
-	str numVal = "1";
-	Type overrideType = wildcard();
-
-	methodImpl = visit(methodImpl) {
-		case \variable(_, extraDimensions) => \variable(overrideVarName, extraDimensions)
-		case \variable(_, extraDimensions, init) => \variable(overrideVarName, extraDimensions, init)
-		case \characterLiteral(_) => \characterLiteral(charName)
-		case \cast(_, e) => \cast(overrideType, e)
-		case \number(_) => \number(numVal)
-		case \type(_) => \type(overrideType)
-		case \simpleName(_) => \simpleName(charName)
-	}
-	
-	println("---------*****-----------");
-	println(methodImpl);
-	println("---------*****-----------");
-	
-	return methodImpl;
-	
-} */
