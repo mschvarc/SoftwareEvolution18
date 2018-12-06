@@ -32,7 +32,7 @@ import Type2Detector;
 import lang::java::m3::TypeSymbol;
 
 
-public test bool testTraverseMethodNoBranching(){	
+/* public test bool testTraverseMethodNoBranching(){	
 	statements = \break();
 	methodBlock =  \block([statements]);
 	traverseMethodImpl(|project://softevo/src/tests/File1.java|,methodBlock);
@@ -53,10 +53,23 @@ public test bool testTraverseMethodNestedIf(){
 	methodBlock =  \block([statements]);
 	traverseMethodImpl(|project://softevo/src/tests/File1.java|,methodBlock);
 	return true;
+} */
+
+public test bool testTraverseMethodNestedIfMet(){	
+	statements = \if(\number("1"),\if(\number("2"),\break(),\break()));
+	methodBlock =  \block([statements]);
+	method1 = \method(wildcard(), "methodName1", [], [], methodBlock);
+	traverseDeclaration(method1);
+	
+	//test = \return(\infix(\infix(\infix(\methodCall(false,\simpleName("x"),"getName",[]),"+",\characterLiteral("\'/\'")),"+",\simpleName("x")),"+",\simpleName("x")));
+	
+	return true;
 }
 
+    
 
-public test bool testThisProject() {
+
+public /* test */ bool testThisProject() {
 	parseProject(|project://softevo/|);
 	return true;
 }

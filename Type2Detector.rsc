@@ -118,6 +118,8 @@ public map[node, set[node]] makeSets(Declaration ast){
 		case node n : {
 			//we need to do highlighting, can't do without SRC
 			if("src" in getKeywordParameters(n) ){
+				//println(getName(n));
+				//println(n);
 				node cleared = unsetRec(n);
 				if(getNodeCountRec(cleared) > nodeSizeThreshold){
 					if(cleared in results) {
@@ -156,16 +158,15 @@ public map[node, set[node]] subsume(map[node, set[node]] input) {
 				continue;
 			}
 			
-			int outerCount = getNodeCountRec(getOneFrom(input[outer]));
-			int innerCount = getNodeCountRec(getOneFrom(input[inner]));
+			int outerCount = getNodeCountRec(outer);
+			int innerCount = getNodeCountRec(inner);
 			
 			//GREATER THAN: bigger set can not be subsumed by smaller set
 			//EQUAL: can't be same size, different equivalence class
 			//LESS THAN: only smaller set can be subsumed by bigger set
-			
-			//if(outerCount >= innerCount) {
-			//	continue;
-			//}
+			if(outerCount >= innerCount) {
+				continue;
+			}
 			
 			//assertions: outer < inner
 			
@@ -175,15 +176,58 @@ public map[node, set[node]] subsume(map[node, set[node]] input) {
 			outerPattern = getOneFrom(input[outer]);
 			innerPattern = getOneFrom(input[inner]);
 			
-			if( / outerPattern := innerPattern) {
-				println("found subtree, outer <outerCount>  SS inner: <innerCount>");
-				break; //this outer pattern is deleted, go to next one
+			if( / outer := inner) {
+				println("found subtree, outer <outerCount>  SS inner: <innerCount>, inspecting");
+				
+				
+				//subsume only if all outer with src match inner with src (same file subsumption for entire class)
+				bool canSubsume = true;
+				for(outerSrc <- input[outer]){
+					bool matchFoundInner = false;
+					for(innerSrc <- input[inner]){
+						if(/ outerSrc :=  innerSrc){
+							matchFoundInner = true;
+							break;
+						}
+					}
+					if(!matchFoundInner){
+						canSubsume = false;
+						break;
+					}
+				}
+				if(canSubsume) {
+					println("subsumed with SRC match");
+					output = delete(output, outer);
+					
+					/*
+					println("--------");
+					println("--------");
+					println(getOneFrom(input[outer]));
+					println("--------");
+					println("LARGER");
+					println("--------");
+					println(getOneFrom(input[inner]));
+					println("--------");
+					println("--------");
+					*/
+					
+					
+					break; //this outer pattern is deleted, go to next one
+				} else {
+					println("subsumption failed due to SRC mismatch");
+				}
 			} 
 		}
 	}
 	
+	println("input size <size(input)>, output size <size(output)>");
+	
 	return output;
 }
+
+/* public map[node, set[node]] fullClassSubsumption(map[node, set[node]] input) {
+	
+} */
 
 
 public int getNodeCountRec(node input){
@@ -194,7 +238,7 @@ public int getNodeCountRec(node input){
 	return count;
 }
 
-public Statement traverseMethodImpl(loc source, Statement methodImpl) {
+/* public Statement traverseMethodImpl(loc source, Statement methodImpl) {
 
 	str overrideVarName = "var";
 	str charName = "x";
@@ -217,4 +261,4 @@ public Statement traverseMethodImpl(loc source, Statement methodImpl) {
 	
 	return methodImpl;
 	
-}
+} */
