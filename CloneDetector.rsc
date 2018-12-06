@@ -18,6 +18,7 @@ import Map;
 // custom object and constant definitions
 alias CloneReport = map[str, set[tuple[loc path, list[int] indices]]];
 int CHUNK_SIZE = 6;
+bool DIAG = true;
 
 /*public bool type1(str chunk1, str chunk2) {
 	return chunk1 == chunk2;
@@ -30,12 +31,20 @@ public CloneReport test2() {
 	return genCRforFile(|project://test/src/tests/CloneTest2.java|);
 }
 
+public CloneReport testSmall() {
+	return genCRforProject(|project://smallsql0.21_src|);
+}
+
 public CloneReport genCRforProject(loc proj) {
 	// instantiate result variable
 	CloneReport totalCR = ();
 
 	// get all of the project files in the given project
 	list[loc] projFiles = getProjFiles(proj);
+	
+	// note down the amount of files we need to do
+	int totalFiles = size(projFiles); 
+	int filesDone = 0;
 	
 	// loop over each file
 	for (thisFile <- projFiles) {
@@ -44,6 +53,9 @@ public CloneReport genCRforProject(loc proj) {
 		
 		// merge the new information with the old
 		totalCR = mergeCRs(thisFileCR, totalCR);
+		
+		// display progress
+		if (DIAG){ filesDone += 1; print("Did <filesDone> out of <totalFiles> files...\r"); }
 	}
 	// return the final Clone Report
 	return totalCR;
