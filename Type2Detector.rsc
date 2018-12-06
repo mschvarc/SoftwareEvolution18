@@ -43,7 +43,9 @@ public void testProject(){
 
 public void parseProject(loc projectLoc){
 	set[Declaration] ast = createAstsFromEclipseProject(projectLoc, true);
-	traverseProject(ast);
+	//println("total ast size: <size(ast)>");
+	//\class(list[Declaration] body)
+	traverseDeclaration(\class(toList(ast)));
 }
 
 
@@ -102,7 +104,7 @@ public void traverseDeclaration(Declaration ast){
 
 public map[node, set[node]] makeSets(Declaration ast){
 	map[node, set[node]] results = ();
-	int nodeSizeThreshold = 2;
+	int nodeSizeThreshold = 6;
 	
 	visit(ast) {
 		case node n : {
@@ -135,7 +137,7 @@ public map[node, set[node]] makeSets(Declaration ast){
 
 public map[node, set[node]] fixedPointSubsume(map[node, set[node]] input) {
 
-	println("subsume original <size(input)>");
+	println("original size before subsume <size(input)>");
 	map[node, set[node]] output = subsume(input);
 	println("subsumed first fixed point iteration: <size(output)>");
 	
@@ -200,6 +202,7 @@ public map[node, set[node]] subsume(map[node, set[node]] input) {
 					output = delete(output, outer);
 					
 					
+					/*
 					println("--------");
 					println("--------");
 					println((input[outer]));
@@ -210,6 +213,7 @@ public map[node, set[node]] subsume(map[node, set[node]] input) {
 					println("--------");
 					println("--------");
 					
+					*/
 					
 					
 					break; //this outer pattern is deleted, go to next one
