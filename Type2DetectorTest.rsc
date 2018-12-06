@@ -66,14 +66,11 @@ public test bool testTraverseMethodNestedIfMet(){
 	return true;
 }
 
-public test bool testType2_1(){
-	
+public test bool testType2_1(){	
 	parseProject(|project://softevo_test_type2_1/|);
-	
 	return true;
 }
     
-
 
 public test bool testThisProject() {
 	parseProject(|project://softevo/|);

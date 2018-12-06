@@ -39,13 +39,40 @@ public void testProject(){
 	//parseProject(|project://softevo|);
 }
 
+alias DuplicationResult = tuple[int duplicationCount, list[loc] fileLocations];
+alias DuplicationResults = list[DuplicationResult];
 
 
-public void parseProject(loc projectLoc){
+public DuplicationResults runType2detection(loc projectLoc){
+	return transformResultsForWeb(parseProject(projectLoc));
+}
+
+public DuplicationResults transformResultsForWeb(map[node, set[node]] input) {
+	DuplicationResults result = [];
+	
+	for(key <- input) {
+		list[loc] locations = [];
+		for(srcNode <- input[key]) {
+			println(srcNode.src);
+			//https://stackoverflow.com/questions/42650305/how-to-cast-data-of-type-value-to-other-type-of-values-in-rascal
+			if(loc l := srcNode.src) {
+				locations += l;
+			}
+		}
+		result += <size(input[key]), locations>;
+	}
+	result = sort(result, duplicationResultComparator); 
+	return result;
+}
+
+private bool duplicationResultComparator(DuplicationResult a, DuplicationResult b) {
+	return a.duplicationCount > b.duplicationCount;
+}
+
+public map[node, set[node]] parseProject(loc projectLoc){
+	//wrap everything to single class to force matching on whole project
 	set[Declaration] ast = createAstsFromEclipseProject(projectLoc, true);
-	//println("total ast size: <size(ast)>");
-	//\class(list[Declaration] body)
-	traverseDeclaration(\class(toList(ast)));
+	return traverseDeclaration(\class(toList(ast)));
 }
 
 
@@ -57,9 +84,8 @@ public void traverseProject(set[Declaration] ast){
 }
 
 
-public void traverseDeclaration(Declaration ast){
+public map[node, set[node]] traverseDeclaration(Declaration ast){
 
-	
 	str overrideVarName = "var";
 	str charName = "x";
 	str numVal = "1";
@@ -78,27 +104,7 @@ public void traverseDeclaration(Declaration ast){
  		//case methodSrc:\method(ret, _, parameters, exceptions) => \method(ret, metName, parameters, exceptions)
 	};
 	
-	 /*visit(ast){
-		case node n:   {
-			println("---------");
-			println("raw: <n>");
-			println("node count: <getNodeCountRec(n)>");
-			println("annotations: <getAnnotations(n)>");
-			println("kw: <getKeywordParameters(n)>");
-		}
-	}*/
-	
-	// ast = unset(ast);
-		
-	/* println(ast);
-	println("---------*****-----------");
-	println("---------*****-----------");
-	println(getAnnotations(ast));
-	println(getChildren(ast));
-	println(getName(ast));
-	*/
-	
-	makeSets(ast);
+	return makeSets(ast);
 }
 
 
@@ -178,7 +184,7 @@ public map[node, set[node]] subsume(map[node, set[node]] input) {
 			innerPattern = getOneFrom(input[inner]);
 			
 			if( / outer := inner) {
-				println("found subtree, outer <outerCount>  SS inner: <innerCount>, inspecting");
+				//println("found subtree, outer <outerCount>  SS inner: <innerCount>, inspecting");
 				
 				//subsume only if all outer with src match inner with src (same file subsumption for entire class)
 				bool canSubsume = true;
@@ -196,11 +202,9 @@ public map[node, set[node]] subsume(map[node, set[node]] input) {
 					}
 				}
 				if(canSubsume) {
-					println("subsumed with SRC match");
-					
+					//println("subsumed with SRC match");
 					
 					output = delete(output, outer);
-					
 					
 					/*
 					println("--------");
@@ -214,13 +218,8 @@ public map[node, set[node]] subsume(map[node, set[node]] input) {
 					println("--------");
 					
 					*/
-					
-					
 					break; //this outer pattern is deleted, go to next one
 				} 
-				/* else {
-					println("subsumption failed due to SRC mismatch");
-				} */
 			} 
 		}
 	}
