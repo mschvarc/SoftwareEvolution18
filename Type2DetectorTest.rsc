@@ -55,7 +55,7 @@ public test bool testTraverseMethodNestedIf(){
 	return true;
 } */
 
-public test bool testTraverseMethodNestedIfMet(){	
+/*public test bool testTraverseMethodNestedIfMet(){	
 	statements = \if(\number("1"),\if(\number("2"),\break(),\break()));
 	methodBlock =  \block([statements]);
 	method1 = \method(wildcard(), "methodName1", [], [], methodBlock);
@@ -64,16 +64,53 @@ public test bool testTraverseMethodNestedIfMet(){
 	//test = \return(\infix(\infix(\infix(\methodCall(false,\simpleName("x"),"getName",[]),"+",\characterLiteral("\'/\'")),"+",\simpleName("x")),"+",\simpleName("x")));
 	
 	return true;
+}*/
+
+
+public test bool testAstNameRemoval(){	
+	statements = \if(\variable("myVarNameOriginal", 2),\if(\number("2"),\break(),\break()));
+	methodBlock =  \block([statements]);
+	method1 = \method(wildcard(), "methodName1", [], [], methodBlock);
+	
+	modified = removeAstNamesAndTypes(method1);
+		
+	return modified != method1;
 }
 
-public test bool testType2_1(){	
-	parseProject(|project://softevo_test_type2_1/|);
-	return true;
-}
-    
+/*
+alias DuplicationResult = tuple[int duplicationCount, list[loc] fileLocations];
+alias DuplicationResults = list[DuplicationResult];
+alias DuplicateMap = map[node, set[node]];
+*/
 
-public test bool testThisProject() {
-	parseProject(|project://softevo/|);
-	return true;
+public test bool testAst1_subsumedAll_type2(){
+	results = runType2detection(|project://softevo_testcase_ast_1|);
+	return 
+		size(results) == 1 && 
+		size(results[0].fileLocations) == 4;
+}
+
+public test bool testAst2_subsumedOnlyMatching_type2(){
+	results = runType2detection(|project://softevo_testcase_ast_2|);
+	return 
+		size(results) == 3 && 
+		size(results[0].fileLocations) == 4 && 
+		size(results[1].fileLocations) == 2 &&
+		size(results[2].fileLocations) == 2;
+}
+
+
+public test bool createSetsOfExactMatchNodesTest_project3(){	
+	ast = \class(toList(createAstsFromEclipseProject(|project://softevo_testcase_ast_3|, true)));
+	res = createSetsOfExactMatchNodes(ast, 6);
+	
+	/*for(key <- res) {
+		println(key);
+		println("-------");
+	}*/
+	
+	//println("<size(res)>");
+	return size(res) == 3;
+
 }
 
