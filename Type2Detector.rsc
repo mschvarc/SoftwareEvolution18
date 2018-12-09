@@ -27,12 +27,7 @@ import lang::java::jdt::m3::AST;
 import analysis::m3::AST;
 import Node;
 
-/*
 
-https://stackoverflow.com/questions/47555798/comparing-ast-nodes
-
-
-*/
 
 public void testProject(){
 	runDuplicationCheckerProject(|project://smallsql0.21_src|, TYPE_TWO());
@@ -45,6 +40,7 @@ alias DuplicateMap = map[node, set[node]];
 
 data DuplicationType = TYPE_ONE() | TYPE_TWO() | TYPE_THREE();
 
+real type3subsumeThreshold = 0.8;
 
 public DuplicationResults runType2detection(loc projectLoc){
 	return transformResultsForWeb(runDuplicationCheckerProject(projectLoc, TYPE_TWO()));
@@ -105,7 +101,6 @@ public Declaration removeAstNamesAndTypes(Declaration ast) {
 			case \type(_) => \type(overrideType)
 			case \simpleName(_) => \simpleName(charName)
 			case \method(_, _, parameters, exceptions, impl) => \method(overrideType, metName, parameters, exceptions, impl)
-	 		//case \method(origType, _, parameters, exceptions) => \method(origType, metName, parameters, exceptions)
 		};
 	return ast;
 }
@@ -256,9 +251,61 @@ public tuple[DuplicateMap output, bool shouldBreak] typeOneAndTwoSubsume(Duplica
 
 public tuple[DuplicateMap output, bool shouldBreak] typeThreeSubsume(DuplicateMap input, node outer, node inner, DuplicateMap output){
 	bool shouldBreak = false;
+	bool canSubsume = treeSimilarity(outer, inner) >= type3subsumeThreshold;
 	
+	if(canSubsume) {
+		output = delete(output, outer);
+		shouldBreak = true;
+	} 
 	return <output, shouldBreak>;
 }
+
+public real treeSimilarity(node leftAst, node rightAst){
+
+	/*
+	From Clone Detection Using Abstract Syntax Trees
+
+	Similarity = 2 x S / (2 x S + L + R)
+	where:
+	S = number of shared nodes
+	L = number of different nodes in sub-tree 1
+	R = number of different nodes in sub-tree 2
+	*/
+	
+	list[node] leftList = convertAstToList(leftAst);
+	list[node] rightList = convertAstToList(rightAst);
+	list[node] intersection = leftList & rightList;
+	
+	int shared = size(intersection);
+	int leftDifferent = 0;
+	int rightDifferent = 0;
+	
+	for(node leftNode <- leftList){
+		if(leftNode notin intersection){
+			leftDifferent += 1;
+		}
+	}
+	
+	for(node rightNode <- rightList){
+		if(rightNode notin intersection){
+			rightDifferent += 1;
+		}
+	}
+	
+	
+	return 2.0 * shared / (2.0 * shared + leftDifferent + rightDifferent);
+}
+
+public list[node] convertAstToList(node ast){
+	list[node] result = [];
+	visit(ast) {
+		case node n: {
+			result += n;
+		}
+	}
+	return result;
+}
+
 
 public int getNodeCountRec(node input){
 	int count = 0;
