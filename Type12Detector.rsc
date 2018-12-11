@@ -1,4 +1,4 @@
-module Type2Detector
+module Type12Detector
 
 
 import IO;
@@ -26,57 +26,23 @@ import lang::java::jdt::m3::Core;
 import lang::java::jdt::m3::AST;
 import analysis::m3::AST;
 import Node;
-
+import DuplicationDefinitions;
+import Type23Shared;
 
 
 public void testProject(){
-	runDuplicationCheckerProject(|project://smallsql0.21_src|, TYPE_TWO());
+	runDuplicationCheckerProjectType12(|project://smallsql0.21_src|, TYPE_TWO());
 	//parseProject(|project://softevo|);
 }
 
-alias DuplicationResult = tuple[int duplicationCount, list[loc] fileLocations];
-alias DuplicationResults = list[DuplicationResult];
-alias DuplicateMap = map[node, set[node]];
 
-data DuplicationType = TYPE_ONE() | TYPE_TWO() | TYPE_THREE();
 
-real type3subsumeThreshold = 0.8;
-
-public DuplicationResults runType2detection(loc projectLoc){
-	return transformResultsForWeb(runDuplicationCheckerProject(projectLoc, TYPE_TWO()));
-}
-
-public DuplicationResults transformResultsForWeb(map[node, set[node]] input) {
-	DuplicationResults result = [];
-	
-	for(key <- input) {
-		list[loc] locations = [];
-		for(srcNode <- input[key]) {
-			println(srcNode.src);
-			//https://stackoverflow.com/questions/42650305/how-to-cast-data-of-type-value-to-other-type-of-values-in-rascal
-			if(loc l := srcNode.src) {
-				locations += l;
-			}
-		}
-		result += <size(input[key]), locations>;
-	}
-	result = sort(result, duplicationResultComparator); 
-	return result;
-}
-
-private bool duplicationResultComparator(DuplicationResult a, DuplicationResult b) {
-	return a.duplicationCount > b.duplicationCount;
-}
-
-public map[node, set[node]] runDuplicationCheckerProject(loc projectLoc, DuplicationType duplicationType){
-	//wrap everything to single class to force matching on whole project
-	set[Declaration] ast = createAstsFromEclipseProject(projectLoc, true);
-	return runDuplicationChecker(\class(toList(ast)), duplicationType);
+public DuplicationResults runType12detection(loc projectLoc){
+	return transformResultsForWeb(runDuplicationCheckerProjectType12(projectLoc, TYPE_TWO()));
 }
 
 
-
-public map[node, set[node]] runDuplicationChecker(Declaration ast, DuplicationType duplicationType){
+public map[node, set[node]] runDuplicationCheckerType12(Declaration ast, DuplicationType duplicationType){
 	if(duplicationType == TYPE_TWO() || duplicationType == TYPE_THREE()) {
 		ast = removeAstNamesAndTypes(ast);
 	}
@@ -86,24 +52,12 @@ public map[node, set[node]] runDuplicationChecker(Declaration ast, DuplicationTy
 	return subsumed;
 }
 
-public Declaration removeAstNamesAndTypes(Declaration ast) {
-	
-	str overrideVarName = "var";
-	str charName = "x";
-	str numVal = "1";
-	Type overrideType = wildcard();
-	str metName = "met";
-	
-	ast = visit(ast) {
-			case \variable(_, extraDimensions) => \variable(overrideVarName, extraDimensions)
-			case \variable(_, extraDimensions, init) => \variable(overrideVarName, extraDimensions, init)
-			case \cast(_, e) => \cast(overrideType, e)
-			case \type(_) => \type(overrideType)
-			case \simpleName(_) => \simpleName(charName)
-			case \method(_, _, parameters, exceptions, impl) => \method(overrideType, metName, parameters, exceptions, impl)
-		};
-	return ast;
+public map[node, set[node]] runDuplicationCheckerProjectType12(loc projectLoc, DuplicationType duplicationType){
+	//wrap everything to single class to force matching on whole project
+	set[Declaration] ast = createAstsFromEclipseProject(projectLoc, true);
+	return runDuplicationCheckerType12(\class(toList(ast)), duplicationType);
 }
+
 
 
 public map[node, set[node]] createSetsOfExactMatchNodes(Declaration ast, int nodeSizeThreshold){
@@ -175,20 +129,10 @@ public map[node, set[node]] subsume(DuplicateMap input, DuplicationType duplicat
 			innerPattern = getOneFrom(input[inner]);
 			
 			//type 1 and 2 is exact match only
-			if(duplicationType == TYPE_ONE() || duplicationType == TYPE_TWO()) {
-				typeOneTwoResult = typeOneAndTwoSubsume(input, outer, inner, output);
-				output = typeOneTwoResult.output;
-				if(typeOneTwoResult.shouldBreak){
-					break;
-				}
-			} 
-			//similarity match type 3
-			else if(duplicationType == TYPE_THREE()) {
-				typeThreeResult = typeThreeSubsume(input, outer, inner, output);
-				output = typeThreeResult.output;
-				if(typeThreeResult.shouldBreak){
-					break;
-				}
+			typeOneTwoResult = typeOneAndTwoSubsume(input, outer, inner, output);
+			output = typeOneTwoResult.output;
+			if(typeOneTwoResult.shouldBreak){
+				break;
 			}
 		}
 	}
@@ -249,70 +193,6 @@ public tuple[DuplicateMap output, bool shouldBreak] typeOneAndTwoSubsume(Duplica
 	return <output, shouldBreak>;
 }
 
-public tuple[DuplicateMap output, bool shouldBreak] typeThreeSubsume(DuplicateMap input, node outer, node inner, DuplicateMap output){
-	bool shouldBreak = false;
-	bool canSubsume = treeSimilarity(outer, inner) >= type3subsumeThreshold;
-	
-	if(canSubsume) {
-		output = delete(output, outer);
-		shouldBreak = true;
-	} 
-	return <output, shouldBreak>;
-}
 
-public real treeSimilarity(node leftAst, node rightAst){
-
-	/*
-	From Clone Detection Using Abstract Syntax Trees
-
-	Similarity = 2 x S / (2 x S + L + R)
-	where:
-	S = number of shared nodes
-	L = number of different nodes in sub-tree 1
-	R = number of different nodes in sub-tree 2
-	*/
-	
-	list[node] leftList = convertAstToList(leftAst);
-	list[node] rightList = convertAstToList(rightAst);
-	list[node] intersection = leftList & rightList;
-	
-	int shared = size(intersection);
-	int leftDifferent = 0;
-	int rightDifferent = 0;
-	
-	for(node leftNode <- leftList){
-		if(leftNode notin intersection){
-			leftDifferent += 1;
-		}
-	}
-	
-	for(node rightNode <- rightList){
-		if(rightNode notin intersection){
-			rightDifferent += 1;
-		}
-	}
-	
-	
-	return 2.0 * shared / (2.0 * shared + leftDifferent + rightDifferent);
-}
-
-public list[node] convertAstToList(node ast){
-	list[node] result = [];
-	visit(ast) {
-		case node n: {
-			result += n;
-		}
-	}
-	return result;
-}
-
-
-public int getNodeCountRec(node input){
-	int count = 0;
-	visit(input) {
-		case node n:  {count += 1;}
-	}
-	return count;
-}
 
 

@@ -14,9 +14,9 @@ import lang::java::m3::Core;
 import util::Math;
 import util::Resources;
 import Map;
+import DuplicationDefinitions;
 
 // custom object and constant definitions
-alias CloneReport = map[str, set[tuple[loc path, list[int] indices]]];
 int CHUNK_SIZE = 6;
 bool DIAG = true;
 
