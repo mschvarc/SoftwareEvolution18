@@ -23,7 +23,7 @@ public void testThis() {
 }
 
 public void testJSON() {
-	dupResToJSON(runType12detection(|project://test|));
+	dupResToJSON(|project://test/src/JSON.txt|, runType12detection(|project://test|));
 }
 
 public void visualizeResults(DuplicationResults res) {
