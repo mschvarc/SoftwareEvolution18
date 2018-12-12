@@ -97,6 +97,10 @@ public CloneReport genCRforFile(loc file) {
 	return result;
 }
 
+public loc getLocFromFileAndRange(loc f, list[int] r) {
+	return f + "(<r[0]>,<r[-1] - r[0]>)";
+}
+
 public list[tuple[int,str]] nextChunk(list[tuple[int,str]] curr, tuple[int,str] next) {
 	return slice(curr+next,1,CHUNK_SIZE);
 }
