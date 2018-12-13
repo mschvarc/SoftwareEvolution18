@@ -35,7 +35,43 @@ public void testProject(){
 	//parseProject(|project://softevo|);
 }
 
+public void testProjectRatio(){
+	//result = getRatio(|project://smallsql0.21_src|, TYPE_TWO());
+	result = getRatio(|project://test|, TYPE_TWO());
+	println(result.dupRatio);
+}
 
+public tuple[real dupRatio, DuplicationResults dupRes] getRatio(loc projectLoc, DuplicationType dupType) {
+	set[Declaration] ast = createAstsFromEclipseProject(projectLoc, true);
+	node parsedAST = \class(toList(ast));
+	
+	int totalNodes = getNodeCountRec(parsedAST);
+	
+	dupRes = runDuplicationCheckerType12(
+				\class(toList(ast)), 
+				dupType
+			);
+	
+	dupRatio = calcDupRatio(totalNodes, dupRes);
+	
+	return <dupRatio, transformResultsForWeb(dupRes)>;
+}
+
+public real calcDupRatio(int total, map[node, set[node]] dupRes) {
+	int cloneCount = 0;
+	
+	for (node cloneClassKey <- dupRes) {
+		set[node] cloneClassSet = dupRes[cloneClassKey];
+		for (node clone <- cloneClassSet) {
+			cloneCount += getNodeCountRec(clone);
+			println("Found <getNodeCountRec(clone)> cloned items");
+		}
+	}
+	
+	println("total = <total>");
+	
+	return cloneCount * 1.0 / total;
+}
 
 public DuplicationResults runType12detection(loc projectLoc){
 	return transformResultsForWeb(runDuplicationCheckerProjectType12(projectLoc, TYPE_TWO()));
