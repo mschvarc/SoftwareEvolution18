@@ -28,29 +28,6 @@ import Node;
 
 import DuplicationDefinitions;
 
-//alias CloneReport = map[str, set[tuple[loc path, list[int] indices]]];
-/*
-alias DuplicationResult = tuple[int duplicationCount, list[loc] fileLocations];
-alias DuplicationResults = list[DuplicationResult];
-alias DuplicateMap = map[node, set[node]];
-*/
-
-/*
-public CloneReport locToCloneReport(DuplicationResults results){
-	CloneReport result = ();
-	
-	for(result <- results) {
-		for(loc fileLocation <- result.fileLocations){
-			list[str] lines = readFileLines(toLocation(fileLocation.uri)); //read entire file
-			list[int] indices = [fileLocation.offset +  .. ];
-			result[
-			//TODO http://docs.rascal-mpl.org/unstable/Rascal/#Values-Location
-		}
-	}
-	
-	return result;
-}*/
-
 
 public DuplicationResults transformResultsForWeb(map[node, set[node]] input) {
 	DuplicationResults result = [];
@@ -73,8 +50,6 @@ public DuplicationResults transformResultsForWeb(map[node, set[node]] input) {
 private bool duplicationResultComparator(DuplicationResult a, DuplicationResult b) {
 	return a.duplicationCount > b.duplicationCount;
 }
-
-
 
 
 public Declaration removeAstNamesAndTypes(Declaration ast) {

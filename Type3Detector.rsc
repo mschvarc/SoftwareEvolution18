@@ -29,8 +29,8 @@ import Node;
 import DuplicationDefinitions;
 import Type23Shared;
 
-public void testProject(){
-	runDuplicationCheckerProject(|project://smallsql0.21_src|, TYPE_TWO());
+public void testProjectType3(){
+	runType3detectionProject(|project://smallsql0.21_src|);
 	//parseProject(|project://softevo|);
 }
 
@@ -40,24 +40,22 @@ real type3subsumeThreshold = 0.8;
 real type3equalityThreshold = 0.8;
 
 
-public DuplicationResults runType3detection(loc projectLoc){
-	return transformResultsForWeb(runDuplicationCheckerProjectType3(projectLoc, TYPE_THREE()));
+public DuplicationResults runType3detectionProject(loc projectLoc){
+	return transformResultsForWeb(runDuplicationCheckerProjectType3(projectLoc, 6));
 }
 
-public map[node, set[node]] runDuplicationCheckerProjectType3(loc projectLoc, DuplicationType duplicationType, int nodeSizeThreshold){
+public map[node, set[node]] runDuplicationCheckerProjectType3(loc projectLoc, int nodeSizeThreshold){
 	//wrap everything to single class to force matching on whole project
 	set[Declaration] ast = createAstsFromEclipseProject(projectLoc, true);
-	return runDuplicationCheckerType3(\class(toList(ast)), duplicationType);
+	return runDuplicationCheckerType3(\class(toList(ast)), nodeSizeThreshold);
 }
 
-
-public map[node, set[node]] runDuplicationCheckerType3(Declaration ast, DuplicationType duplicationType, int nodeSizeThreshold){
+public map[node, set[node]] runDuplicationCheckerType3(Declaration ast, int nodeSizeThreshold){
 	ast = removeAstNamesAndTypes(ast);
 	map[node, set[node]] exactMatches = createSetsOfSimilarNodes(ast, nodeSizeThreshold);
-	map[node, set[node]] subsumed = fixedPointSubsume(exactMatches, duplicationType);
+	map[node, set[node]] subsumed = fixedPointSubsumeType3(exactMatches);
 	return subsumed;
 }
-
 
 
 public map[node, set[node]] createSetsOfSimilarNodes(Declaration ast, int nodeSizeThreshold){
@@ -75,12 +73,12 @@ public map[node, set[node]] createSetsOfSimilarNodes(Declaration ast, int nodeSi
 						results[cleared] = {n};
 					} else {
 						
-						node mostSimilarElement = getOneFrom(results);
-						real mostSimilarRatio = treeSimilarity(mostSimilarElement, n);
+						node mostSimilarElement = unsetRec(getOneFrom(results));
+						real mostSimilarRatio = treeSimilarity(mostSimilarElement, cleared);
 						
 						//traverse to find most similar node in map (if possible)
 						for(comparedNode <- results){
-							real similarityRatio = treeSimilarity(comparedNode, n);
+							real similarityRatio = treeSimilarity(comparedNode, cleared);
 							if(similarityRatio > mostSimilarRatio) {
 								mostSimilarElement = comparedNode;
 								mostSimilarRatio = similarityRatio;
@@ -89,7 +87,7 @@ public map[node, set[node]] createSetsOfSimilarNodes(Declaration ast, int nodeSi
 						
 						//if above threshold, add to similar set
 						if(mostSimilarRatio >= type3equalityThreshold) {
-							results[cleared] += n;
+							results[mostSimilarElement] += n;
 						}
 						//new unique element
 						else {
@@ -110,21 +108,21 @@ public map[node, set[node]] createSetsOfSimilarNodes(Declaration ast, int nodeSi
 	return nonDuplicatedResults;
 }
 
-public map[node, set[node]] fixedPointSubsume(map[node, set[node]] input, DuplicationType duplicationType) {
+public map[node, set[node]] fixedPointSubsumeType3(map[node, set[node]] input) {
 
 	println("original size before subsume <size(input)>");
-	map[node, set[node]] output = subsume(input, duplicationType);
+	map[node, set[node]] output = subsumeType3(input);
 	println("subsumed first fixed point iteration: <size(output)>");
 	
 	while(input != output) {
 		input = output;
-		output = subsume(output, duplicationType);
+		output = subsumeType3(output);
 		println("subsumed fixed point iteration: <size(output)>");
 	}
 	return output;
 }
 
-public map[node, set[node]] subsume(DuplicateMap input, DuplicationType duplicationType) {
+public map[node, set[node]] subsumeType3(DuplicateMap input) {
 	
 	map[node, set[node]] output = input; 
 	

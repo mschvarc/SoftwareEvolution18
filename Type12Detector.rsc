@@ -36,11 +36,13 @@ public void testProject(){
 }
 
 
-
-public DuplicationResults runType12detection(loc projectLoc){
-	return transformResultsForWeb(runDuplicationCheckerProjectType12(projectLoc, TYPE_TWO()));
+public DuplicationResults runType1detectionProject(loc projectLoc){
+	return transformResultsForWeb(runDuplicationCheckerProjectType12(projectLoc, TYPE_ONE()));
 }
 
+public DuplicationResults runType2detectionProject(loc projectLoc){
+	return transformResultsForWeb(runDuplicationCheckerProjectType12(projectLoc, TYPE_TWO()));
+}
 
 public map[node, set[node]] runDuplicationCheckerType12(Declaration ast, DuplicationType duplicationType){
 	if(duplicationType == TYPE_TWO() || duplicationType == TYPE_THREE()) {
@@ -48,7 +50,7 @@ public map[node, set[node]] runDuplicationCheckerType12(Declaration ast, Duplica
 	}
 	
 	map[node, set[node]] exactMatches = createSetsOfExactMatchNodes(ast,  6);
-	map[node, set[node]] subsumed = fixedPointSubsume(exactMatches, duplicationType);
+	map[node, set[node]] subsumed = fixedPointSubsumeType12(exactMatches, duplicationType);
 	return subsumed;
 }
 
@@ -57,8 +59,6 @@ public map[node, set[node]] runDuplicationCheckerProjectType12(loc projectLoc, D
 	set[Declaration] ast = createAstsFromEclipseProject(projectLoc, true);
 	return runDuplicationCheckerType12(\class(toList(ast)), duplicationType);
 }
-
-
 
 public map[node, set[node]] createSetsOfExactMatchNodes(Declaration ast, int nodeSizeThreshold){
 	map[node, set[node]] results = ();
@@ -89,21 +89,21 @@ public map[node, set[node]] createSetsOfExactMatchNodes(Declaration ast, int nod
 	return nonDuplicatedResults;
 }
 
-public map[node, set[node]] fixedPointSubsume(map[node, set[node]] input, DuplicationType duplicationType) {
+public map[node, set[node]] fixedPointSubsumeType12(map[node, set[node]] input, DuplicationType duplicationType) {
 
 	println("original size before subsume <size(input)>");
-	map[node, set[node]] output = subsume(input, duplicationType);
+	map[node, set[node]] output = subsumeType12(input, duplicationType);
 	println("subsumed first fixed point iteration: <size(output)>");
 	
 	while(input != output) {
 		input = output;
-		output = subsume(output, duplicationType);
+		output = subsumeType12(output, duplicationType);
 		println("subsumed fixed point iteration: <size(output)>");
 	}
 	return output;
 }
 
-public map[node, set[node]] subsume(DuplicateMap input, DuplicationType duplicationType) {
+public map[node, set[node]] subsumeType12(DuplicateMap input, DuplicationType duplicationType) {
 	
 	map[node, set[node]] output = input; 
 	
