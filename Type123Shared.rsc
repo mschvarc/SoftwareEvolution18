@@ -68,6 +68,11 @@ public Declaration removeAstNamesAndTypes(Declaration ast) {
 	return ast;
 }
 
+public void printlnd(str input) {
+	if(DEBUG){
+		println(input);
+	}
+}
 
 public int getNodeCountRec(node input){
 	int count = 0;

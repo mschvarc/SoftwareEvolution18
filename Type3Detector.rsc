@@ -58,12 +58,12 @@ public map[node, set[node]] runDuplicationCheckerType3(Declaration ast, int node
 	
 	
 	for(key <- subsumed) {
-		println("-------");
-		println("<size(subsumed[key])> #");
+		printlnd("-------");
+		printlnd("<size(subsumed[key])> #");
 		for(n <- subsumed[key]){
-			println("<n.src>");
+			printlnd("<n.src>");
 		}
-		println("-------");
+		printlnd("-------");
 	}
 	
 	return subsumed;
@@ -79,9 +79,9 @@ public map[node, set[node]] createSetsOfSimilarNodes(Declaration ast, int nodeSi
 			if("src" in getKeywordParameters(n) ){
 				node cleared = unsetRec(n);
 				
-				println("********");
-				println("processing: <cleared>");
-				println("********");
+				printlnd("********");
+				printlnd("processing: <cleared>");
+				printlnd("********");
 				
 				if(getNodeCountRec(cleared) >= nodeSizeThreshold){
 					
@@ -104,13 +104,13 @@ public map[node, set[node]] createSetsOfSimilarNodes(Declaration ast, int nodeSi
 						
 						//if above threshold, add to similar set
 						if(mostSimilarRatio >= type3equalityThreshold) {
-							println("Adding item to existing set, simRatio <mostSimilarRatio>");
-							println("Appended to: <mostSimilarElement>");
+							printlnd("Adding item to existing set, simRatio <mostSimilarRatio>");
+							printlnd("Appended to: <mostSimilarElement>");
 							results[mostSimilarElement] += n;
 						}
 						//new unique element
 						else {
-							println("Adding item to new set");
+							printlnd("Adding item to new set");
 							results[cleared] = {n};
 						}
 					}
@@ -128,28 +128,28 @@ public map[node, set[node]] createSetsOfSimilarNodes(Declaration ast, int nodeSi
 	
 	nonDuplicatedResults = pruneDescendants(nonDuplicatedResults);
 	
-	println("********");
-	println("size: <size(nonDuplicatedResults)>");
+	printlnd("********");
+	printlnd("size: <size(nonDuplicatedResults)>");
 	for(n <- nonDuplicatedResults){
-		println("********");
-		println("<n>");
-		println("********");
+		printlnd("********");
+		printlnd("<n>");
+		printlnd("********");
 	}
-	println("********");
+	printlnd("********");
 	
 	return nonDuplicatedResults;
 }
 
 public map[node, set[node]] fixedPointSubsumeType3(map[node, set[node]] input) {
 
-	println("original size before subsume <size(input)>");
+	printlnd("original size before subsume <size(input)>");
 	map[node, set[node]] output = subsumeType3(input);
-	println("subsumed first fixed point iteration: <size(output)>");
+	printlnd("subsumed first fixed point iteration: <size(output)>");
 	
 	while(input != output) {
 		input = output;
 		output = subsumeType3(output);
-		println("subsumed fixed point iteration: <size(output)>");
+		printlnd("subsumed fixed point iteration: <size(output)>");
 	}
 	return output;
 }
@@ -188,7 +188,7 @@ public map[node, set[node]] subsumeType3(DuplicateMap input) {
 	}
 	output = pruneDescendants(output);
 	
-	println("input size <size(input)>, output size <size(output)>");
+	printlnd("input size <size(input)>, output size <size(output)>");
 	
 	return output;
 }
@@ -211,7 +211,7 @@ public map[node, set[node]] pruneDescendants(map[node, set[node]] input) {
 				}
 				if( / a := b ){
 					newSet = newSet - {a};
-					println("Pruned descendant: ");//<getNodeCountRec(a)> from <getNodeCountRec(b)>
+					printlnd("Pruned descendant: ");//<getNodeCountRec(a)> from <getNodeCountRec(b)>
 				}
 			}
 		}

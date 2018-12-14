@@ -92,14 +92,14 @@ public map[node, set[node]] createSetsOfExactMatchNodes(Declaration ast, int nod
 
 public map[node, set[node]] fixedPointSubsumeType12(map[node, set[node]] input, DuplicationType duplicationType) {
 
-	println("original size before subsume <size(input)>");
+	printlnd("original size before subsume <size(input)>");
 	map[node, set[node]] output = subsumeType12(input, duplicationType);
-	println("subsumed first fixed point iteration: <size(output)>");
+	printlnd("subsumed first fixed point iteration: <size(output)>");
 	
 	while(input != output) {
 		input = output;
 		output = subsumeType12(output, duplicationType);
-		println("subsumed fixed point iteration: <size(output)>");
+		printlnd("subsumed fixed point iteration: <size(output)>");
 	}
 	return output;
 }
@@ -138,7 +138,7 @@ public map[node, set[node]] subsumeType12(DuplicateMap input, DuplicationType du
 		}
 	}
 	
-	println("input size <size(input)>, output size <size(output)>");
+	printlnd("input size <size(input)>, output size <size(output)>");
 	
 	return output;
 }
@@ -152,7 +152,7 @@ public tuple[DuplicateMap output, bool shouldBreak] typeOneAndTwoSubsume(Duplica
 	bool shouldBreak = false;
 	
 	if( / outer := inner) {
-		//println("found subtree, outer <outerCount>  SS inner: <innerCount>, inspecting");
+		//printlnd("found subtree, outer <outerCount>  SS inner: <innerCount>, inspecting");
 		
 		//subsume only if all outer with src match inner with src (same file subsumption for entire class)
 		bool canSubsume = true;
@@ -170,20 +170,20 @@ public tuple[DuplicateMap output, bool shouldBreak] typeOneAndTwoSubsume(Duplica
 			}
 		}
 		if(canSubsume) {
-			//println("subsumed with SRC match");
+			//printlnd("subsumed with SRC match");
 			
 			output = delete(output, outer);
 			
 			/*
-			println("--------");
-			println("--------");
-			println((input[outer]));
-			println("--------");
-			println("LARGER");
-			println("--------");
-			println((input[inner]));
-			println("--------");
-			println("--------");
+			printlnd("--------");
+			printlnd("--------");
+			printlnd((input[outer]));
+			printlnd("--------");
+			printlnd("LARGER");
+			printlnd("--------");
+			printlnd((input[inner]));
+			printlnd("--------");
+			printlnd("--------");
 			
 			*/
 			shouldBreak = true; //this outer pattern is deleted, go to next one
