@@ -27,7 +27,7 @@ import lang::java::jdt::m3::AST;
 import analysis::m3::AST;
 import Node;
 import DuplicationDefinitions;
-import Type23Shared;
+import Type123Shared;
 
 public void testProjectType3(){
 	runType3detectionProject(|project://smallsql0.21_src|);
@@ -41,7 +41,7 @@ real type3equalityThreshold = 0.8;
 
 
 public DuplicationResults runType3detectionProject(loc projectLoc){
-	return transformResultsForWeb(runDuplicationCheckerProjectType3(projectLoc, 6));
+	return transformResultsForWeb(runDuplicationCheckerProjectType3(projectLoc, 12));
 }
 
 public map[node, set[node]] runDuplicationCheckerProjectType3(loc projectLoc, int nodeSizeThreshold){
@@ -54,6 +54,18 @@ public map[node, set[node]] runDuplicationCheckerType3(Declaration ast, int node
 	ast = removeAstNamesAndTypes(ast);
 	map[node, set[node]] exactMatches = createSetsOfSimilarNodes(ast, nodeSizeThreshold);
 	map[node, set[node]] subsumed = fixedPointSubsumeType3(exactMatches);
+	subsumed = pruneSingletons(subsumed);
+	
+	
+	for(key <- subsumed) {
+		println("-------");
+		println("<size(subsumed[key])> #");
+		for(n <- subsumed[key]){
+			println("<n.src>");
+		}
+		println("-------");
+	}
+	
 	return subsumed;
 }
 
@@ -66,6 +78,11 @@ public map[node, set[node]] createSetsOfSimilarNodes(Declaration ast, int nodeSi
 			//we need to do highlighting, can't do without SRC
 			if("src" in getKeywordParameters(n) ){
 				node cleared = unsetRec(n);
+				
+				println("********");
+				println("processing: <cleared>");
+				println("********");
+				
 				if(getNodeCountRec(cleared) >= nodeSizeThreshold){
 					
 					if(size(results) == 0) {
@@ -87,10 +104,13 @@ public map[node, set[node]] createSetsOfSimilarNodes(Declaration ast, int nodeSi
 						
 						//if above threshold, add to similar set
 						if(mostSimilarRatio >= type3equalityThreshold) {
+							println("Adding item to existing set, simRatio <mostSimilarRatio>");
+							println("Appended to: <mostSimilarElement>");
 							results[mostSimilarElement] += n;
 						}
 						//new unique element
 						else {
+							println("Adding item to new set");
 							results[cleared] = {n};
 						}
 					}
@@ -104,7 +124,19 @@ public map[node, set[node]] createSetsOfSimilarNodes(Declaration ast, int nodeSi
 		if(size(results[n]) > 1) {
 			nonDuplicatedResults += (n : results[n]);
 		}
-	}	
+	}
+	
+	nonDuplicatedResults = pruneDescendants(nonDuplicatedResults);
+	
+	println("********");
+	println("size: <size(nonDuplicatedResults)>");
+	for(n <- nonDuplicatedResults){
+		println("********");
+		println("<n>");
+		println("********");
+	}
+	println("********");
+	
 	return nonDuplicatedResults;
 }
 
@@ -136,13 +168,13 @@ public map[node, set[node]] subsumeType3(DuplicateMap input) {
 			int innerCount = getNodeCountRec(inner);
 			
 			//GREATER THAN: bigger set can not be subsumed by smaller set
-			//EQUAL: can't be same size, different equivalence class
+			//EQUAL: can be equal according to type 3 logic (change from type 1-2)
 			//LESS THAN: only smaller set can be subsumed by bigger set
-			if(outerCount >= innerCount) {
+			if(outerCount > innerCount) {
 				continue;
 			}
 			
-			//assertions: outer < inner
+			//assertions: outer <= inner
 			
 			outerPattern = getOneFrom(input[outer]);
 			innerPattern = getOneFrom(input[inner]);
@@ -154,16 +186,44 @@ public map[node, set[node]] subsumeType3(DuplicateMap input) {
 			}
 		}
 	}
+	output = pruneDescendants(output);
 	
 	println("input size <size(input)>, output size <size(output)>");
 	
 	return output;
 }
 
+/**
+Prunes results for same key of matching subtrees
+A = subtree1
+B = node containing A
+Result: removes A, keeps B
+*/
+public map[node, set[node]] pruneDescendants(map[node, set[node]] input) {
+	map[node, set[node]] output = ();
+	
+	for(key <- input){
+		set[node] newSet = input[key];
+		for(a <- input[key]){
+			for(b <- input[key]){
+				if( a == b){
+					continue;
+				}
+				if( / a := b ){
+					newSet = newSet - {a};
+					println("Pruned descendant: ");//<getNodeCountRec(a)> from <getNodeCountRec(b)>
+				}
+			}
+		}
+		output[key] = newSet;
+	}
+	return output;
+}
+
 
 public tuple[DuplicateMap output, bool shouldBreak] typeThreeSubsume(DuplicateMap input, node outer, node inner, DuplicateMap output){
 	bool shouldBreak = false;
-	bool canSubsume = treeSimilarity(outer, inner) >= type3subsumeThreshold;
+	bool canSubsume = treeSimilarity(unsetRec(outer), unsetRec(inner)) >= type3subsumeThreshold;
 	
 	if(canSubsume) {
 		output = delete(output, outer);

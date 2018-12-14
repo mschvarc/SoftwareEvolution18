@@ -27,7 +27,7 @@ import lang::java::jdt::m3::AST;
 import analysis::m3::AST;
 import Node;
 import DuplicationDefinitions;
-import Type23Shared;
+import Type123Shared;
 
 
 public void testProject(){
@@ -51,6 +51,7 @@ public map[node, set[node]] runDuplicationCheckerType12(Declaration ast, Duplica
 	
 	map[node, set[node]] exactMatches = createSetsOfExactMatchNodes(ast,  6);
 	map[node, set[node]] subsumed = fixedPointSubsumeType12(exactMatches, duplicationType);
+	subsumed = pruneSingletons(subsumed);
 	return subsumed;
 }
 

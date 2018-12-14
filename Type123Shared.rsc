@@ -1,4 +1,4 @@
-module Type23Shared
+module Type123Shared
 
 import IO;
 import List;
@@ -16,6 +16,7 @@ import util::Resources;
 
 import DuplicationDefinitions;
 
+bool DEBUG = false;
 
 public DuplicationResults transformResultsForWeb(map[node, set[node]] input) {
 	DuplicationResults result = [];
@@ -23,7 +24,6 @@ public DuplicationResults transformResultsForWeb(map[node, set[node]] input) {
 	for(key <- input) {
 		list[loc] locations = [];
 		for(srcNode <- input[key]) {
-			println(srcNode.src);
 			//https://stackoverflow.com/questions/42650305/how-to-cast-data-of-type-value-to-other-type-of-values-in-rascal
 			if(loc l := srcNode.src) {
 				locations += l;
@@ -39,6 +39,15 @@ private bool duplicationResultComparator(DuplicationResult a, DuplicationResult 
 	return a.duplicationCount > b.duplicationCount;
 }
 
+public map[node, set[node]] pruneSingletons(map[node, set[node]] input) {
+	map[node, set[node]] result = ();
+	for(n <- input){
+		if(size(input[n]) > 1){
+			result[n] = input[n];
+		}
+	}
+	return result;
+}
 
 public Declaration removeAstNamesAndTypes(Declaration ast) {
 	

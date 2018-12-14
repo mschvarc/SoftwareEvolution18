@@ -1,4 +1,4 @@
-module Type23SharedTest
+module Type123SharedTest
 
 
 import IO;
@@ -34,7 +34,7 @@ import Type23Shared;
 
 
 public test bool testAstTypeRemoval(){
-	statements = \if(\variable("myVarNameOriginal", 2),\if(\number("2"),\break(),\break()));
+	statements = \if(\variable("myVarNameOriginal1", 2),\if(\number("2"),\break(),\break()));
 	methodBlock =  \block([statements]);
 	method1 = \method(wildcard(), "methodName1", [], [], methodBlock);
 	
@@ -44,7 +44,7 @@ public test bool testAstTypeRemoval(){
 }
 
 public test bool testAstNameRemoval(){	
-	statements = \if(\variable("myVarNameOriginal", 2),\if(\type(\int()),\break(),\break()));
+	statements = \if(\variable("myVarNameOriginal", 2),\if(\number("2"),\break(),\break()));
 	methodBlock =  \block([statements]);
 	method1 = \method(wildcard(), "methodName1", [], [], methodBlock);
 	
@@ -53,13 +53,18 @@ public test bool testAstNameRemoval(){
 	return modified != method1;
 }
 
-public test bool testNodeCount(){
+public test bool testNodeCountAtom(){
+	statements = \break();
+	return getNodeCountRec(statements) == 1;
+}
+
+public test bool testNodeCountNonEmpty(){
 	statements = \if(\variable("myVarNameOriginal", 2),\if(\number("3"),\break(),\break()));
-	return getNodeCountRec(statements) == 7;
+	return getNodeCountRec(statements) == 6;
 }
 
 public test bool testNodeListConversion(){
 	statements = \if(\variable("myVarNameOriginal", 2),\if(\number("3"),\break(),\break()));
-	
-	return false;
+	listRes = convertAstToList(statements);
+	return size(listRes) == 6;
 }
