@@ -17,6 +17,8 @@ import util::Resources;
 import DuplicationDefinitions;
 
 bool DEBUG = false;
+bool TRACE = false;
+
 
 public DuplicationResults transformResultsForWeb(map[node, set[node]] input) {
 	DuplicationResults result = [];
@@ -68,8 +70,16 @@ public Declaration removeAstNamesAndTypes(Declaration ast) {
 	return ast;
 }
 
-public void printlnd(str input) {
+//debug print
+public void printlnd(value input) {
 	if(DEBUG){
+		println(input);
+	}
+}
+
+//trace print
+public void printlnt(value input) {
+	if(TRACE){
 		println(input);
 	}
 }
@@ -90,4 +100,32 @@ public list[node] convertAstToList(node ast){
 		}
 	}
 	return result;
+}
+
+
+/**
+Prunes results for same key of matching subtrees
+A = subtree1
+B = node containing A
+Result: removes A, keeps B
+*/
+public map[node, set[node]] pruneDescendants(map[node, set[node]] input) {
+	map[node, set[node]] output = ();
+	
+	for(key <- input){
+		set[node] newSet = input[key];
+		for(a <- input[key]){
+			for(b <- input[key]){
+				if( a == b){
+					continue;
+				}
+				if( / a := b ){
+					newSet = newSet - {a};
+					printlnd("Pruned descendant: ");//<getNodeCountRec(a)> from <getNodeCountRec(b)>
+				}
+			}
+		}
+		output[key] = newSet;
+	}
+	return output;
 }

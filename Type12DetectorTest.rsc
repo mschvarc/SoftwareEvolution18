@@ -31,6 +31,28 @@ import Type12Detector;
 
 import lang::java::m3::TypeSymbol;
 
+/*===========*/
+
+
+public test bool testAst1_subsumedAll_type1(){
+	results = runType1detectionProject(|project://softevo_testcase_ast_1|);
+	println(results);
+	return 
+		size(results) == 1 && 
+		size(results[0].fileLocations) == 4;
+}
+
+public test bool testAst2_subsumedOnlyMatching_type1(){
+	results = runType1detectionProject(|project://softevo_testcase_ast_2|);
+	return 
+		size(results) == 3 && 
+		size(results[0].fileLocations) == 4 && 
+		size(results[1].fileLocations) == 2 &&
+		size(results[2].fileLocations) == 2;
+}
+
+/*===========*/
+
 
 public test bool testAst1_subsumedAll_type2(){
 	results = runType2detectionProject(|project://softevo_testcase_ast_1|);
@@ -48,6 +70,7 @@ public test bool testAst2_subsumedOnlyMatching_type2(){
 		size(results[2].fileLocations) == 2;
 }
 
+/*===========*/
 
 public test bool createSetsOfExactMatchNodesTest_project3(){	
 	ast = \class(toList(createAstsFromEclipseProject(|project://softevo_testcase_ast_3|, true)));

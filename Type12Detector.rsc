@@ -49,7 +49,7 @@ public map[node, set[node]] runDuplicationCheckerType12(Declaration ast, Duplica
 		ast = removeAstNamesAndTypes(ast);
 	}
 	
-	map[node, set[node]] exactMatches = createSetsOfExactMatchNodes(ast,  6);
+	map[node, set[node]] exactMatches = createSetsOfExactMatchNodes(ast,  12);
 	map[node, set[node]] subsumed = fixedPointSubsumeType12(exactMatches, duplicationType);
 	subsumed = pruneSingletons(subsumed);
 	return subsumed;
@@ -80,6 +80,8 @@ public map[node, set[node]] createSetsOfExactMatchNodes(Declaration ast, int nod
 			}
 		}
 	}
+	
+	results = pruneDescendants(results);
 	
 	map[node, set[node]] nonDuplicatedResults = ();
 	for(node n <- results){
@@ -126,8 +128,8 @@ public map[node, set[node]] subsumeType12(DuplicateMap input, DuplicationType du
 			
 			//assertions: outer < inner
 			
-			outerPattern = getOneFrom(input[outer]);
-			innerPattern = getOneFrom(input[inner]);
+			//outerPattern = getOneFrom(input[outer]);
+			//innerPattern = getOneFrom(input[inner]);
 			
 			//type 1 and 2 is exact match only
 			typeOneTwoResult = typeOneAndTwoSubsume(input, outer, inner, output);
@@ -137,6 +139,8 @@ public map[node, set[node]] subsumeType12(DuplicateMap input, DuplicationType du
 			}
 		}
 	}
+	
+	output = pruneDescendants(output);
 	
 	printlnd("input size <size(input)>, output size <size(output)>");
 	
@@ -152,40 +156,94 @@ public tuple[DuplicateMap output, bool shouldBreak] typeOneAndTwoSubsume(Duplica
 	bool shouldBreak = false;
 	
 	if( / outer := inner) {
-		//printlnd("found subtree, outer <outerCount>  SS inner: <innerCount>, inspecting");
+		printlnd("found subtree, outer <getNodeCountRec(outer)>  SS inner: <getNodeCountRec(inner)>, inspecting");
+		
+		if(size(input[outer]) == 4 && size(input[inner]) == 2){
+			printlnt("******");
+			
+			
+			printlnt("--------");
+			printlnt("SMALLER");
+			printlnt("--------");
+			printlnt(size(input[outer]));
+			
+			for(x <- input[outer]){
+				printlnt(x.src);
+			}
+			
+			printlnt("--------");
+			printlnt("LARGER");
+			printlnt("--------");
+			printlnt(size(input[inner]));
+			for(x <- input[inner]){
+				printlnt(x.src);
+			}
+			printlnt("--------");
+			printlnt("--------");
+			
+			printlnt("*********");
+				
+				
+		}
 		
 		//subsume only if all outer with src match inner with src (same file subsumption for entire class)
 		bool canSubsume = true;
 		for(outerSrc <- input[outer]){
+			printlnt("--------");
+			printlnt("MATCHING OUTER: <outerSrc.src> combinations");
 			bool matchFoundInner = false;
 			for(innerSrc <- input[inner]){
+				printlnt("Comparing outer: <outerSrc.src> with inner: <innerSrc.src>");
 				if(/ outerSrc :=  innerSrc){
+					printlnt("match found, shouldBreak  = <shouldBreak>");
 					matchFoundInner = true;
-					shouldBreak = true;
+					//shouldBreak = true;
+					break;
 				}
 			}
 			if(!matchFoundInner){
 				canSubsume = false;
 				shouldBreak = true;
+				printlnt("SRC subsume failed");
+				
+				printlnt("--------");
+				printlnt("SMALLER");
+				printlnt("--------");
+				printlnt(size(input[outer]));
+				
+				for(x <- input[outer]){
+					printlnt(x.src);
+				}
+				
+				printlnt("--------");
+				printlnt("LARGER");
+				printlnt("--------");
+				printlnt(size(input[inner]));
+				for(x <- input[inner]){
+					printlnt(x.src);
+				}
+				printlnt("--------");
+				printlnt("--------");
+				
+				break;
 			}
 		}
 		if(canSubsume) {
-			//printlnd("subsumed with SRC match");
-			
 			output = delete(output, outer);
 			
+			printlnd("subsumed with SRC match");
 			/*
-			printlnd("--------");
-			printlnd("--------");
-			printlnd((input[outer]));
-			printlnd("--------");
-			printlnd("LARGER");
-			printlnd("--------");
-			printlnd((input[inner]));
-			printlnd("--------");
-			printlnd("--------");
-			
+			printlnt("--------");
+			printlnt("--------");
+			printlnt((input[outer]));
+			printlnt("--------");
+			printlnt("LARGER");
+			printlnt("--------");
+			printlnt((input[inner]));
+			printlnt("--------");
+			printlnt("--------");
 			*/
+			
 			shouldBreak = true; //this outer pattern is deleted, go to next one
 		} 
 	}	
@@ -195,5 +253,19 @@ public tuple[DuplicateMap output, bool shouldBreak] typeOneAndTwoSubsume(Duplica
 }
 
 
-
+public real calcDupRatioAlternative(int total, map[node, set[node]] dupRes) {
+	int cloneCount = 0;
+	
+	for (node cloneClassKey <- dupRes) {
+		set[node] cloneClassSet = dupRes[cloneClassKey];
+		for (node clone <- cloneClassSet) {
+			cloneCount += getNodeCountRec(clone);
+			println("Found <getNodeCountRec(clone)> cloned items");
+		}
+	}
+	
+	//println("total = <total>");
+	
+	return cloneCount * 1.0 / total;
+}
 

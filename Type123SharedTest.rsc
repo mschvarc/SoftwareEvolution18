@@ -30,7 +30,7 @@ import Node;
 import DuplicationDefinitions;
 
 
-import Type23Shared;
+import Type123Shared;
 
 
 public test bool testAstTypeRemoval(){

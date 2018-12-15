@@ -79,9 +79,9 @@ public map[node, set[node]] createSetsOfSimilarNodes(Declaration ast, int nodeSi
 			if("src" in getKeywordParameters(n) ){
 				node cleared = unsetRec(n);
 				
-				printlnd("********");
-				printlnd("processing: <cleared>");
-				printlnd("********");
+				printlnt("********");
+				printlnt("processing: <cleared>");
+				printlnt("********");
 				
 				if(getNodeCountRec(cleared) >= nodeSizeThreshold){
 					
@@ -190,33 +190,6 @@ public map[node, set[node]] subsumeType3(DuplicateMap input) {
 	
 	printlnd("input size <size(input)>, output size <size(output)>");
 	
-	return output;
-}
-
-/**
-Prunes results for same key of matching subtrees
-A = subtree1
-B = node containing A
-Result: removes A, keeps B
-*/
-public map[node, set[node]] pruneDescendants(map[node, set[node]] input) {
-	map[node, set[node]] output = ();
-	
-	for(key <- input){
-		set[node] newSet = input[key];
-		for(a <- input[key]){
-			for(b <- input[key]){
-				if( a == b){
-					continue;
-				}
-				if( / a := b ){
-					newSet = newSet - {a};
-					printlnd("Pruned descendant: ");//<getNodeCountRec(a)> from <getNodeCountRec(b)>
-				}
-			}
-		}
-		output[key] = newSet;
-	}
 	return output;
 }
 
