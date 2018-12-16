@@ -51,21 +51,26 @@ public map[node, set[node]] pruneSingletons(map[node, set[node]] input) {
 	return result;
 }
 
-public Declaration removeAstNamesAndTypes(Declaration ast) {
+public node removeAstNamesAndTypes(node ast) {
 	
 	str overrideVarName = "var";
+	str overrideParamName = "param";
 	str charName = "x";
 	str numVal = "1";
-	Type overrideType = wildcard();
+	Type overrideType = lang::java::jdt::m3::AST::float();
 	str metName = "met";
+	
 	
 	ast = visit(ast) {
 			case \variable(_, extraDimensions) => \variable(overrideVarName, extraDimensions)
 			case \variable(_, extraDimensions, init) => \variable(overrideVarName, extraDimensions, init)
 			case \cast(_, e) => \cast(overrideType, e)
 			case \type(_) => \type(overrideType)
+			case Type _ => overrideType
 			case \simpleName(_) => \simpleName(charName)
 			case \method(_, _, parameters, exceptions, impl) => \method(overrideType, metName, parameters, exceptions, impl)
+			case \parameter(_, _, c) => \parameter(overrideType, overrideParamName, c)
+			
 		};
 	return ast;
 }
@@ -128,4 +133,44 @@ public map[node, set[node]] pruneDescendants(map[node, set[node]] input) {
 		output[key] = newSet;
 	}
 	return output;
+}
+
+
+public bool canSubsumeSrcMatch(DuplicateMap input, node outer, node inner) {
+	
+	bool matched = true;
+	bool matchedInner = false; 
+	//TODO: add length
+	for(node outerSrc <- input[outer]) {
+		bool matchedInnerTest = any(innerSrc <- input[inner], 
+			nodeToLoc(outerSrc.src).path == nodeToLoc(innerSrc.src).path);
+		if(matchedInnerTest) {
+			matchedInner = true;
+		}
+	}
+	if(!matchedInner) {
+		matched = false;
+		printlnt("Failed canSubsumeSrcMatch");
+		return false;
+	}
+	printlnt("canSubsumeSrcMatch suceeded");
+	return matched;
+}
+
+public loc nodeToLoc(value v){
+	if(loc l := v) {
+		return l;
+	}
+	throw "fialed to extract location";
+}
+
+public void printClasses(map[node, set[node]] subsumed){
+	for(key <- subsumed) {
+		printlnd("-------");
+		printlnd("<size(subsumed[key])> #");
+		for(n <- subsumed[key]){
+			printlnd("<n.src>");
+		}
+		printlnd("-------");
+	}
 }

@@ -44,14 +44,24 @@ public DuplicationResults runType2detectionProject(loc projectLoc){
 	return transformResultsForWeb(runDuplicationCheckerProjectType12(projectLoc, TYPE_TWO()));
 }
 
-public map[node, set[node]] runDuplicationCheckerType12(Declaration ast, DuplicationType duplicationType){
+public map[node, set[node]] runDuplicationCheckerType12(node ast, DuplicationType duplicationType){
 	if(duplicationType == TYPE_TWO() || duplicationType == TYPE_THREE()) {
-		ast = removeAstNamesAndTypes(ast);
+		ast = removeAstNamesAndTypes(ast);				
 	}
 	
 	map[node, set[node]] exactMatches = createSetsOfExactMatchNodes(ast,  12);
 	map[node, set[node]] subsumed = fixedPointSubsumeType12(exactMatches, duplicationType);
 	subsumed = pruneSingletons(subsumed);
+	
+	for(key <- subsumed) {
+		printlnd("-------");
+		printlnd("<size(subsumed[key])> #");
+		for(n <- subsumed[key]){
+			printlnd("<n.src>");
+		}
+		printlnd("-------");
+	}
+	
 	return subsumed;
 }
 
@@ -61,7 +71,7 @@ public map[node, set[node]] runDuplicationCheckerProjectType12(loc projectLoc, D
 	return runDuplicationCheckerType12(\class(toList(ast)), duplicationType);
 }
 
-public map[node, set[node]] createSetsOfExactMatchNodes(Declaration ast, int nodeSizeThreshold){
+public map[node, set[node]] createSetsOfExactMatchNodes(node ast, int nodeSizeThreshold){
 	map[node, set[node]] results = ();
 	
 	visit(ast) {
@@ -81,27 +91,44 @@ public map[node, set[node]] createSetsOfExactMatchNodes(Declaration ast, int nod
 		}
 	}
 	
-	results = pruneDescendants(results);
+	map[node, set[node]] nonDuplicatedResults = pruneSingletons(results);
+	nonDuplicatedResults = pruneDescendants(nonDuplicatedResults);
 	
-	map[node, set[node]] nonDuplicatedResults = ();
-	for(node n <- results){
-		if(size(results[n]) > 1) {
-			nonDuplicatedResults += (n : results[n]);
-		}
-	}	
+	
+	printlnd("#################");
+	printlnd("After pruning and size 1 filter and set creation 1");
+	printClasses(nonDuplicatedResults);
+	printlnd("#################");
+	
 	return nonDuplicatedResults;
 }
 
 public map[node, set[node]] fixedPointSubsumeType12(map[node, set[node]] input, DuplicationType duplicationType) {
 
+	printlnd("#################");
+	printlnd("BEFORE first FP subsume");
+	printClasses(input);
+	printlnd("#################");
+
 	printlnd("original size before subsume <size(input)>");
 	map[node, set[node]] output = subsumeType12(input, duplicationType);
 	printlnd("subsumed first fixed point iteration: <size(output)>");
+	
+	printlnd("#################");
+	printlnd("After first FP subsume");
+	printClasses(output);
+	printlnd("#################");
 	
 	while(input != output) {
 		input = output;
 		output = subsumeType12(output, duplicationType);
 		printlnd("subsumed fixed point iteration: <size(output)>");
+		
+		printlnd("#################");
+		printlnd("After i-th FP subsume");
+		printClasses(output);
+		printlnd("#################");
+		
 	}
 	return output;
 }
@@ -109,10 +136,12 @@ public map[node, set[node]] fixedPointSubsumeType12(map[node, set[node]] input, 
 public map[node, set[node]] subsumeType12(DuplicateMap input, DuplicationType duplicationType) {
 	
 	map[node, set[node]] output = input; 
+	//track removed nodes, skip in other comparisons
+	set[node] removed = {};
 	
 	for(outer <- input) {
 		for(inner <- input) {
-			if (outer == inner) {
+			if (outer == inner || outer in removed || inner in removed) {
 				continue;
 			}
 			
@@ -132,8 +161,9 @@ public map[node, set[node]] subsumeType12(DuplicateMap input, DuplicationType du
 			//innerPattern = getOneFrom(input[inner]);
 			
 			//type 1 and 2 is exact match only
-			typeOneTwoResult = typeOneAndTwoSubsume(input, outer, inner, output);
+			typeOneTwoResult = typeOneAndTwoSubsume(input, outer, inner, output, removed);
 			output = typeOneTwoResult.output;
+			removed = typeOneTwoResult.removedSet;
 			if(typeOneTwoResult.shouldBreak){
 				break;
 			}
@@ -147,7 +177,8 @@ public map[node, set[node]] subsumeType12(DuplicateMap input, DuplicationType du
 	return output;
 }
 
-public tuple[DuplicateMap output, bool shouldBreak] typeOneAndTwoSubsume(DuplicateMap input, node outer, node inner, DuplicateMap output){
+public tuple[DuplicateMap output, bool shouldBreak, set[node] removedSet] typeOneAndTwoSubsume
+	(DuplicateMap input, node outer, node inner, DuplicateMap output, set[node] removed){
 	
 	//if inner SUBSET outer:
 	//remove inner from results
@@ -230,8 +261,9 @@ public tuple[DuplicateMap output, bool shouldBreak] typeOneAndTwoSubsume(Duplica
 		}
 		if(canSubsume) {
 			output = delete(output, outer);
+			removed = removed + outer;
 			
-			printlnd("subsumed with SRC match");
+			printlnd("subsumed with SRC match method 1");
 			/*
 			printlnt("--------");
 			printlnt("--------");
@@ -246,10 +278,16 @@ public tuple[DuplicateMap output, bool shouldBreak] typeOneAndTwoSubsume(Duplica
 			
 			shouldBreak = true; //this outer pattern is deleted, go to next one
 		} 
-	}	
+	}
+	/*else if(canSubsumeSrcMatch(input, outer, inner)){
+		output = delete(output, outer);
+		removed = removed + outer;
+		printlnd("subsumed with SRC match method 2");
+		shouldBreak = true; //this outer pattern is deleted, go to next one
+	}*/
 	
 	
-	return <output, shouldBreak>;
+	return <output, shouldBreak, removed>;
 }
 
 

@@ -39,6 +39,10 @@ public void run(loc projectLoc, DuplicationType dupType, loc resultLoc) {
 	
 	// Parse to get a more usable function
 	node parsedAST = \class(toList(ast));
+	//transform AST to remove types
+	if(dupType == TYPE_TWO() || dupType == TYPE_THREE()) {
+		parsedAST = removeAstNamesAndTypes(parsedAST);				
+	}
 	
 	// count the total nodes in this AST
 	int totalNodes = getNodeCountRec(parsedAST);
@@ -53,13 +57,13 @@ public void run(loc projectLoc, DuplicationType dupType, loc resultLoc) {
 	//dupResToJSON(resultLoc, transformResultsForWeb(dupResMap));
 	
 	// display the found duplication rate
-	println("Duplication rate for this project: <dupRatio>");
+	println("Duplication rate for this project: <dupRatio * 100>%");
 	
 	//display additional statistics 
-	additionalStats(parsedAST, dupResMap);
+	//additionalStats(parsedAST, dupResMap);
 }
 
-public map[node, set[node]] calcDup(Declaration ast, DuplicationType dupType) {
+public map[node, set[node]] calcDup(node ast, DuplicationType dupType) {
 	map[node, set[node]] dupResMap;
 
 	switch (dupType) {
@@ -139,8 +143,9 @@ public real calcDupRatio(node parsedAST, map[node, set[node]] dupRes) {
 	map[node, int] nodeBitmap = ();
 	
 	for (node cloneClassKey <- dupRes) {
-		set[node] cloneClassSet = dupRes[cloneClassKey];
+		set[node] cloneClassSet = dupRes[cloneClassKey];		
 		for (node clone <- cloneClassSet) {
+			printlnd("Investigating <getNodeCountRec(clone)>  nodes in class set");
 			visit(clone) {
 				case node n: {
 					if(n in nodeBitmap){
@@ -161,7 +166,7 @@ public real calcDupRatio(node parsedAST, map[node, set[node]] dupRes) {
 		}
 	}
 	
-	//println("duplicates = <cloneCount>; total = <totalNodes>");
+	println("duplicates = <cloneCount>; total = <totalNodes>");
 	
 	return cloneCount * 1.0 / totalNodes;
 }

@@ -50,27 +50,19 @@ public map[node, set[node]] runDuplicationCheckerProjectType3(loc projectLoc, in
 	return runDuplicationCheckerType3(\class(toList(ast)), nodeSizeThreshold);
 }
 
-public map[node, set[node]] runDuplicationCheckerType3(Declaration ast, int nodeSizeThreshold){
+public map[node, set[node]] runDuplicationCheckerType3(node ast, int nodeSizeThreshold){
 	ast = removeAstNamesAndTypes(ast);
 	map[node, set[node]] exactMatches = createSetsOfSimilarNodes(ast, nodeSizeThreshold);
 	map[node, set[node]] subsumed = fixedPointSubsumeType3(exactMatches);
 	subsumed = pruneSingletons(subsumed);
 	
-	
-	for(key <- subsumed) {
-		printlnd("-------");
-		printlnd("<size(subsumed[key])> #");
-		for(n <- subsumed[key]){
-			printlnd("<n.src>");
-		}
-		printlnd("-------");
-	}
+	printClasses(subsumed);
 	
 	return subsumed;
 }
 
 
-public map[node, set[node]] createSetsOfSimilarNodes(Declaration ast, int nodeSizeThreshold){
+public map[node, set[node]] createSetsOfSimilarNodes(node ast, int nodeSizeThreshold){
 	map[node, set[node]] results = ();
 	
 	visit(ast) {
@@ -119,14 +111,19 @@ public map[node, set[node]] createSetsOfSimilarNodes(Declaration ast, int nodeSi
 		}
 	}
 	
-	map[node, set[node]] nonDuplicatedResults = ();
-	for(node n <- results){
-		if(size(results[n]) > 1) {
-			nonDuplicatedResults += (n : results[n]);
-		}
-	}
+	printlnd("#################");
+	printlnd("BEFORE de-duplication");
+	printClasses(results);
+	printlnd("#################");
 	
+	map[node, set[node]] nonDuplicatedResults = pruneSingletons(results);
 	nonDuplicatedResults = pruneDescendants(nonDuplicatedResults);
+	nonDuplicatedResults = pruneSingletons(nonDuplicatedResults);
+	
+	printlnd("#################");
+	printlnd("After pruning, size 1 filter and set creation 1");
+	printClasses(nonDuplicatedResults);
+	printlnd("#################");
 	
 	printlnd("********");
 	printlnd("size: <size(nonDuplicatedResults)>");
@@ -139,6 +136,8 @@ public map[node, set[node]] createSetsOfSimilarNodes(Declaration ast, int nodeSi
 	
 	return nonDuplicatedResults;
 }
+
+
 
 public map[node, set[node]] fixedPointSubsumeType3(map[node, set[node]] input) {
 
@@ -196,14 +195,21 @@ public map[node, set[node]] subsumeType3(DuplicateMap input) {
 
 public tuple[DuplicateMap output, bool shouldBreak] typeThreeSubsume(DuplicateMap input, node outer, node inner, DuplicateMap output){
 	bool shouldBreak = false;
-	bool canSubsume = treeSimilarity(unsetRec(outer), unsetRec(inner)) >= type3subsumeThreshold;
+	node outerUnset = unsetRec(outer);
+	node innerUnset = unsetRec(inner);
 	
-	if(canSubsume) {
+	bool canSubsumeSimilarity = treeSimilarity(outerUnset, innerUnset) >= type3subsumeThreshold;
+	
+	if(canSubsumeSimilarity || ( / outerUnset := innerUnset) || canSubsumeSrcMatch(input, outer, inner)) {
 		output = delete(output, outer);
 		shouldBreak = true;
+		printlnd("subsumed T3: <canSubsumeSimilarity>");
 	} 
 	return <output, shouldBreak>;
 }
+
+
+
 
 public real treeSimilarity(node leftAst, node rightAst){
 
