@@ -33,6 +33,14 @@ public void test3() {
 	run(|project://softevo_testcase_ast_1|, TYPE_THREE(), |project://test/src/JSON.txt|);
 }
 
+public void runSmallSql(DuplicationType dupType) {
+	run(|project://smallsql0.21_src|, dupType, |project://test/src/JSON.txt|);
+}
+
+public void runHsqlDb(DuplicationType dupType) {
+	run(|project://hsqldb-2.3.1|, dupType, |project://test/src/JSON.txt|);
+}
+
 public void run(loc projectLoc, DuplicationType dupType, loc resultLoc) {
 	// generate the Abstract Syntax Tree for the given project
 	set[Declaration] ast = createAstsFromEclipseProject(projectLoc, true);
@@ -60,7 +68,7 @@ public void run(loc projectLoc, DuplicationType dupType, loc resultLoc) {
 	println("Duplication rate for this project: <dupRatio * 100>%");
 	
 	//display additional statistics 
-	//additionalStats(parsedAST, dupResMap);
+	additionalStats(parsedAST, dupResMap);
 }
 
 public map[node, set[node]] calcDup(node ast, DuplicationType dupType) {

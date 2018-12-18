@@ -49,7 +49,7 @@ public map[node, set[node]] runDuplicationCheckerType12(node ast, DuplicationTyp
 		ast = removeAstNamesAndTypes(ast);				
 	}
 	
-	map[node, set[node]] exactMatches = createSetsOfExactMatchNodes(ast,  12);
+	map[node, set[node]] exactMatches = createSetsOfExactMatchNodes(ast,  6);
 	map[node, set[node]] subsumed = fixedPointSubsumeType12(exactMatches, duplicationType);
 	subsumed = pruneSingletons(subsumed);
 	

@@ -28,6 +28,7 @@ import analysis::m3::AST;
 import Node;
 import DuplicationDefinitions;
 import Type123Shared;
+import util::Math;
 
 public void testProjectType3(){
 	runType3detectionProject(|project://smallsql0.21_src|);
@@ -41,7 +42,7 @@ real type3equalityThreshold = 0.8;
 
 
 public DuplicationResults runType3detectionProject(loc projectLoc){
-	return transformResultsForWeb(runDuplicationCheckerProjectType3(projectLoc, 12));
+	return transformResultsForWeb(runDuplicationCheckerProjectType3(projectLoc, 40));
 }
 
 public map[node, set[node]] runDuplicationCheckerProjectType3(loc projectLoc, int nodeSizeThreshold){
@@ -64,6 +65,7 @@ public map[node, set[node]] runDuplicationCheckerType3(node ast, int nodeSizeThr
 
 public map[node, set[node]] createSetsOfSimilarNodes(node ast, int nodeSizeThreshold){
 	map[node, set[node]] results = ();
+	map[node, int] nodeCountMap = ();
 	
 	visit(ast) {
 		case node n : {
@@ -75,8 +77,13 @@ public map[node, set[node]] createSetsOfSimilarNodes(node ast, int nodeSizeThres
 				printlnt("processing: <cleared>");
 				printlnt("********");
 				
-				if(getNodeCountRec(cleared) >= nodeSizeThreshold){
+				int nodeCount = getNodeCountRec(cleared);
+				nodeCountMap[cleared] = nodeCount;
+				
+				
+				if(nodeCount >= nodeSizeThreshold && nodeCount <= 50 && size(results) <= 5000){ //TODO: finetune constant
 					
+					println("<size(results)>");
 					if(size(results) == 0) {
 						//add node as new unique key
 						results[cleared] = {n};
@@ -87,6 +94,9 @@ public map[node, set[node]] createSetsOfSimilarNodes(node ast, int nodeSizeThres
 						
 						//traverse to find most similar node in map (if possible)
 						for(comparedNode <- results){
+							if(abs(nodeCountMap[comparedNode] - nodeCount) > 10){ //TODO: finetune constant
+								continue;
+							}
 							real similarityRatio = treeSimilarity(comparedNode, cleared);
 							if(similarityRatio > mostSimilarRatio) {
 								mostSimilarElement = comparedNode;
